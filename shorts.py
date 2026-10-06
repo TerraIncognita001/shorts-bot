@@ -15,7 +15,7 @@ THEMES = "цікаві факти, космос, історія, психоло�
 
 
 def gen_script():
-    model = os.getenv("GEMINI_MODEL", "gemini-3.5-flash")
+    import time
     prompt = (
         "Ти автор YouTube Shorts каналу Terra Incognita. "
         f"Теми: {THEMES}. Обери одну нову тему, не повторюй: {used[-60:]}. "
@@ -25,17 +25,23 @@ def gen_script():
         '"sentences": [{"text": "речення", "q": "2-3 англійські слова для пошуку відео"}], '
         '"tags": ["тег1", "тег2"]}'
     )
-    r = requests.post(
-        f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent",
-        params={"key": os.environ["GEMINI_API_KEY"]},
-        json={
-            "contents": [{"parts": [{"text": prompt}]}],
-            "generationConfig": {"responseMimeType": "application/json"},
-        },
-        timeout=120,
-    )
+    models = [os.getenv("GEMINI_MODEL", "gemini-3.5-flash"), "gemini-flash-latest", "gemini-3.1-flash-lite"]
+    for attempt in range(4):
+        for model in models:
+            r = requests.post(
+                f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent",
+                params={"key": os.environ["GEMINI_API_KEY"]},
+                json={
+                    "contents": [{"parts": [{"text": prompt}]}],
+                    "generationConfig": {"responseMimeType": "application/json"},
+                },
+                timeout=120,
+            )
+            if r.ok:
+                return json.loads(r.json()["candidates"][0]["content"]["parts"][0]["text"])
+            print(model, r.status_code)
+        time.sleep(20)
     r.raise_for_status()
-    return json.loads(r.json()["candidates"][0]["content"]["parts"][0]["text"])
 
 
 async def tts(text, path):
