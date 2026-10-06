@@ -17,9 +17,13 @@ random.shuffle(CLIPS)
 # Font: put font.ttf (e.g. Press Start 2P) in the repo root. Falls back to DejaVu Bold.
 CUSTOM_FONT = pathlib.Path("font.ttf")
 if CUSTOM_FONT.exists():
-    FONT, FONT_SIZE, WRAP = str(CUSTOM_FONT.resolve()), 62, 14
+    FONT, FONT_SIZE, WRAP = str(CUSTOM_FONT.resolve()), 54, 15
 else:
-    FONT, FONT_SIZE, WRAP = "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", 76, 16
+    FONT, FONT_SIZE, WRAP = "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", 66, 15
+# Layout for YouTube Shorts UI (frame 1080x1920): like/comment buttons are on the right (~15%),
+# channel name + caption at the bottom (~22%). Keep text left and above the bottom zone.
+TEXT_X = int(os.getenv("TEXT_X", "60"))            # left edge of the text block, px
+TEXT_BOTTOM = float(os.getenv("TEXT_BOTTOM", "0.76"))  # bottom edge of text block, fraction of height
 MUSIC = pathlib.Path("music.mp3")  # optional background music in the repo root
 TEXT_COLOR = os.getenv("TEXT_COLOR", "white")
 TITLE_COLOR = os.getenv("TITLE_COLOR", "0xf2c14e")
@@ -105,17 +109,17 @@ def build_segment(i, src, ss, text, dur, title=None):
         "scale=1188:2112:force_original_aspect_ratio=increase,crop=1188:2112,fps=30,"
         f"crop=1080:1920:x='{px}':y='(in_h-1920)/2',"
         "eq=contrast=1.08:saturation=1.18,vignette=PI/6,"
-        "drawbox=x=0:y=ih*0.52:w=iw:h=ih*0.30:color=black@0.40:t=fill,"
         f"drawtext=fontfile={FONT}:textfile=t{i}.txt:fontsize={FONT_SIZE}:fontcolor={TEXT_COLOR}:"
-        "borderw=6:bordercolor=black:shadowx=4:shadowy=4:shadowcolor=black@0.7:line_spacing=16:"
-        "x=(w-text_w)/2:y=h*0.67-text_h/2:alpha='min(1,t/0.18)'"
+        "borderw=5:bordercolor=black:shadowx=4:shadowy=4:shadowcolor=black@0.7:line_spacing=14:"
+        "box=1:boxcolor=black@0.45:boxborderw=26:"
+        f"x={TEXT_X}:y=h*{TEXT_BOTTOM}-text_h:alpha='min(1,t/0.18)'"
     )
     if title and i == 0:
-        (W / "title.txt").write_text(textwrap.fill(title, WRAP + 4), encoding="utf-8")
+        (W / "title.txt").write_text(textwrap.fill(title, 18), encoding="utf-8")
         vf += (
-            f",drawtext=fontfile={FONT}:textfile=title.txt:fontsize={int(FONT_SIZE * 0.85)}:"
-            f"fontcolor={TITLE_COLOR}:borderw=6:bordercolor=black:line_spacing=14:"
-            "x=(w-text_w)/2:y=h*0.14:enable='lt(t,3.2)'"
+            f",drawtext=fontfile={FONT}:textfile=title.txt:fontsize={int(FONT_SIZE * 0.8)}:"
+            f"fontcolor={TITLE_COLOR}:borderw=5:bordercolor=black:line_spacing=12:"
+            f"x={TEXT_X}:y=h*0.12:enable='lt(t,3.2)'"
         )
     ff("-ss", str(ss), "-stream_loop", "-1", "-i", src, "-i", f"s{i}.mp3",
        "-vf", vf, "-map", "0:v", "-map", "1:a", "-t", d,
