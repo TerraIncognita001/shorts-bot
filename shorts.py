@@ -1,4 +1,4 @@
-import asyncio, json, os, pathlib, random, subprocess, textwrap
+import asyncio, json, os, pathlib, random, shutil, subprocess, textwrap, time
 import edge_tts
 import requests
 from google.oauth2.credentials import Credentials
@@ -9,21 +9,23 @@ W = pathlib.Path("work")
 W.mkdir(exist_ok=True)
 USED = pathlib.Path("used.json")
 used = json.loads(USED.read_text(encoding="utf-8")) if USED.exists() else []
-VOICE = os.getenv("VOICE", "uk-UA-OstapNeural")
+VOICE = os.getenv("VOICE", "en-US-GuyNeural")
 FONT = "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf"
-THEMES = "цікаві факти, космос, історія, психологія, біологія, загадки, географія, наука"
+THEMES = "Minecraft lore, mob facts, hidden mechanics, what-if scenarios, survival stories, mysteries and legends of the game world"
+CLIPS = sorted(pathlib.Path("clips").glob("*.mp4"))
+random.shuffle(CLIPS)
 
 
 def gen_script():
-    import time
     prompt = (
-        "Ти автор YouTube Shorts каналу Terra Incognita. "
-        f"Теми: {THEMES}. Обери одну нову тему, не повторюй: {used[-60:]}. "
-        "Напиши сценарій українською: 6-8 коротких речень, разом 90-110 слів, "
-        "перше речення - гачок, останнє - несподіване завершення. "
-        'Поверни JSON: {"title": "до 70 символів", '
-        '"sentences": [{"text": "речення", "q": "2-3 англійські слова для пошуку відео"}], '
-        '"tags": ["тег1", "тег2"]}'
+        "You write scripts for a YouTube Shorts channel set in the Minecraft universe, "
+        "read by a male narrator. "
+        f"Topics: {THEMES}. Pick one new topic, do not repeat these: {used[-60:]}. "
+        "Write the script in English: 6-8 short sentences, 90-110 words total, "
+        "first sentence is a hook, last sentence is a surprising ending. "
+        'Return JSON: {"title": "up to 70 characters", '
+        '"sentences": [{"text": "sentence", "q": "2-3 English words for stock video search"}], '
+        '"tags": ["tag1", "tag2"]}'
     )
     models = [os.getenv("GEMINI_MODEL", "gemini-3.5-flash"), "gemini-flash-latest", "gemini-3.1-flash-lite"]
     for attempt in range(4):
@@ -49,7 +51,10 @@ async def tts(text, path):
 
 
 def get_clip(q, i):
-    for query in (q, "nature"):
+    if CLIPS:
+        shutil.copy(CLIPS[i % len(CLIPS)], W / f"c{i}.mp4")
+        return
+    for query in (q, "pixel art landscape", "nature"):
         r = requests.get(
             "https://pixabay.com/api/videos/",
             params={"key": os.environ["PIXABAY_API_KEY"], "q": query, "per_page": 20, "safesearch": "true"},
@@ -60,8 +65,7 @@ def get_clip(q, i):
     hit = random.choice(r["hits"])
     vids = hit["videos"]
     url = next(vids[k]["url"] for k in ("large", "medium", "small", "tiny") if vids.get(k, {}).get("url"))
-    data = requests.get(url, timeout=180)
-    (W / f"c{i}.mp4").write_bytes(data.content)
+    (W / f"c{i}.mp4").write_bytes(requests.get(url, timeout=180).content)
 
 
 def ff(*args):
@@ -97,12 +101,15 @@ def upload(title, tags):
         client_secret=os.environ["YT_CLIENT_SECRET"],
     )
     yt = build("youtube", "v3", credentials=creds)
+    tags = list(dict.fromkeys(["Minecraft"] + tags))
     body = {
         "snippet": {
             "title": f"{title[:85]} #Shorts",
-            "description": f"{title}\n\n#Shorts " + " ".join("#" + t.replace(" ", "") for t in tags[:5]),
+            "description": f"{title}\n\n#Shorts #Minecraft "
+            + " ".join("#" + t.replace(" ", "") for t in tags[1:5])
+            + "\n\nNot an official Minecraft product. Not approved by or associated with Mojang or Microsoft.",
             "tags": tags[:15],
-            "categoryId": "27",
+            "categoryId": "20",
         },
         "status": {
             "privacyStatus": os.getenv("PRIVACY", "public"),
