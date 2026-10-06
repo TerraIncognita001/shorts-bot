@@ -15,7 +15,7 @@ THEMES = "цікаві факти, космос, історія, психоло�
 
 
 def gen_script():
-    model = os.getenv("GEMINI_MODEL", "gemini-flash-latest")
+    model = os.getenv("GEMINI_MODEL", "gemini-3.5-flash")
     prompt = (
         "Ти автор YouTube Shorts каналу Terra Incognita. "
         f"Теми: {THEMES}. Обери одну нову тему, не повторюй: {used[-60:]}. "
