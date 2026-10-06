@@ -1,4 +1,4 @@
-import asyncio, json, os, pathlib, random, shutil, subprocess, textwrap, time
+import asyncio, json, os, pathlib, random, subprocess, textwrap, time
 import edge_tts
 import requests
 from google.oauth2.credentials import Credentials
@@ -10,10 +10,19 @@ W.mkdir(exist_ok=True)
 USED = pathlib.Path("used.json")
 used = json.loads(USED.read_text(encoding="utf-8")) if USED.exists() else []
 VOICE = os.getenv("VOICE", "en-US-GuyNeural")
-FONT = "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf"
 THEMES = "Minecraft lore, mob facts, hidden mechanics, what-if scenarios, survival stories, mysteries and legends of the game world"
 CLIPS = sorted(pathlib.Path("clips").glob("*.mp4"))
 random.shuffle(CLIPS)
+
+# Font: put font.ttf (e.g. Press Start 2P) in the repo root. Falls back to DejaVu Bold.
+CUSTOM_FONT = pathlib.Path("font.ttf")
+if CUSTOM_FONT.exists():
+    FONT, FONT_SIZE, WRAP = str(CUSTOM_FONT.resolve()), 62, 14
+else:
+    FONT, FONT_SIZE, WRAP = "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", 76, 16
+MUSIC = pathlib.Path("music.mp3")  # optional background music in the repo root
+TEXT_COLOR = os.getenv("TEXT_COLOR", "white")
+TITLE_COLOR = os.getenv("TITLE_COLOR", "0xf2c14e")
 
 
 def gen_script():
@@ -50,10 +59,21 @@ async def tts(text, path):
     await edge_tts.Communicate(text, VOICE, rate="+5%").save(str(path))
 
 
+def probe_duration(path):
+    try:
+        return float(subprocess.run(
+            ["ffprobe", "-v", "error", "-show_entries", "format=duration",
+             "-of", "default=nw=1:nk=1", str(path)],
+            capture_output=True, text=True, check=True).stdout.strip())
+    except Exception:
+        return 0.0
+
+
 def get_clip(q, i):
     if CLIPS:
-        shutil.copy(CLIPS[i % len(CLIPS)], W / f"c{i}.mp4")
-        return
+        src = CLIPS[i % len(CLIPS)].resolve()
+        dur = probe_duration(src)
+        return str(src), round(random.uniform(0, max(0, dur - 12)), 2)
     for query in (q, "pixel art landscape", "nature"):
         r = requests.get(
             "https://pixabay.com/api/videos/",
@@ -66,30 +86,59 @@ def get_clip(q, i):
     vids = hit["videos"]
     url = next(vids[k]["url"] for k in ("large", "medium", "small", "tiny") if vids.get(k, {}).get("url"))
     (W / f"c{i}.mp4").write_bytes(requests.get(url, timeout=180).content)
+    return str((W / f"c{i}.mp4").resolve()), 0
 
 
 def ff(*args):
     subprocess.run(["ffmpeg", "-y", "-loglevel", "error", *args], check=True, cwd=W)
 
 
-def make_video(sentences):
+def build_segment(i, src, ss, text, dur, title=None):
+    (W / f"t{i}.txt").write_text(textwrap.fill(text, WRAP), encoding="utf-8")
+    d = f"{dur:.2f}"
+    # slow pan: alternate direction each segment; scale 10% larger than frame
+    if i % 2 == 0:
+        px = f"(in_w-1080)*t/{d}"
+    else:
+        px = f"(in_w-1080)*(1-t/{d})"
+    vf = (
+        "scale=1188:2112:force_original_aspect_ratio=increase,crop=1188:2112,fps=30,"
+        f"crop=1080:1920:x='{px}':y='(in_h-1920)/2',"
+        "eq=contrast=1.08:saturation=1.18,vignette=PI/6,"
+        "drawbox=x=0:y=ih*0.52:w=iw:h=ih*0.30:color=black@0.40:t=fill,"
+        f"drawtext=fontfile={FONT}:textfile=t{i}.txt:fontsize={FONT_SIZE}:fontcolor={TEXT_COLOR}:"
+        "borderw=6:bordercolor=black:shadowx=4:shadowy=4:shadowcolor=black@0.7:line_spacing=16:"
+        "x=(w-text_w)/2:y=h*0.67-text_h/2:alpha='min(1,t/0.18)'"
+    )
+    if title and i == 0:
+        (W / "title.txt").write_text(textwrap.fill(title, WRAP + 4), encoding="utf-8")
+        vf += (
+            f",drawtext=fontfile={FONT}:textfile=title.txt:fontsize={int(FONT_SIZE * 0.85)}:"
+            f"fontcolor={TITLE_COLOR}:borderw=6:bordercolor=black:line_spacing=14:"
+            "x=(w-text_w)/2:y=h*0.14:enable='lt(t,3.2)'"
+        )
+    ff("-ss", str(ss), "-stream_loop", "-1", "-i", src, "-i", f"s{i}.mp3",
+       "-vf", vf, "-map", "0:v", "-map", "1:a", "-t", d,
+       "-c:v", "libx264", "-preset", "veryfast", "-pix_fmt", "yuv420p",
+       "-c:a", "aac", "-ar", "44100", "-ac", "2", f"seg{i}.mp4")
+
+
+def make_video(sentences, title):
     segs = []
     for i, s in enumerate(sentences):
         asyncio.run(tts(s["text"], W / f"s{i}.mp3"))
-        get_clip(s["q"], i)
-        (W / f"t{i}.txt").write_text(textwrap.fill(s["text"], 18), encoding="utf-8")
-        vf = (
-            "scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920,fps=30,"
-            f"drawtext=fontfile={FONT}:textfile=t{i}.txt:fontsize=64:fontcolor=white:"
-            "borderw=4:bordercolor=black:line_spacing=12:x=(w-text_w)/2:y=h*0.62"
-        )
-        ff("-stream_loop", "-1", "-i", f"c{i}.mp4", "-i", f"s{i}.mp3",
-           "-vf", vf, "-map", "0:v", "-map", "1:a",
-           "-c:v", "libx264", "-preset", "veryfast", "-pix_fmt", "yuv420p",
-           "-c:a", "aac", "-ar", "44100", "-ac", "2", "-shortest", f"seg{i}.mp4")
+        src, ss = get_clip(s["q"], i)
+        dur = max(1.5, probe_duration(W / f"s{i}.mp3") + 0.15)
+        build_segment(i, src, ss, s["text"], dur, title)
         segs.append(f"file 'seg{i}.mp4'")
     (W / "list.txt").write_text("\n".join(segs), encoding="utf-8")
     ff("-f", "concat", "-safe", "0", "-i", "list.txt", "-c", "copy", "out.mp4")
+    if MUSIC.exists():
+        ff("-i", "out.mp4", "-stream_loop", "-1", "-i", str(MUSIC.resolve()),
+           "-filter_complex", "[1:a]volume=0.10[m];[0:a][m]amix=inputs=2:duration=first:dropout_transition=0[a]",
+           "-map", "0:v", "-map", "[a]", "-c:v", "copy", "-c:a", "aac", "-shortest", "final.mp4")
+    else:
+        (W / "final.mp4").write_bytes((W / "out.mp4").read_bytes())
 
 
 def upload(title, tags):
@@ -116,14 +165,14 @@ def upload(title, tags):
             "selfDeclaredMadeForKids": False,
         },
     }
-    media = MediaFileUpload(str(W / "out.mp4"), chunksize=-1, resumable=True)
+    media = MediaFileUpload(str(W / "final.mp4"), chunksize=-1, resumable=True)
     res = yt.videos().insert(part="snippet,status", body=body, media_body=media).execute()
     print("uploaded:", res["id"])
 
 
 if __name__ == "__main__":
     data = gen_script()
-    make_video(data["sentences"])
+    make_video(data["sentences"], data["title"])
     upload(data["title"], data.get("tags", []))
     used.append(data["title"])
     USED.write_text(json.dumps(used, ensure_ascii=False, indent=1), encoding="utf-8")
