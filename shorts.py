@@ -54,6 +54,8 @@ random.shuffle(CLIPS)
 IMAGES = env("IMAGES", "1") == "1"                      # 0 = clips only, no wiki pictures
 MUSIC = pathlib.Path("music.mp3")                       # background track, repo root
 MUSIC_START = float(env("MUSIC_START", "0"))
+CHANNEL = env("CHANNEL", "TERRA INCOGNITA")                   # shown in every frame
+FILE_NO = len(used) + 1                                 # running number shown on screen
 NARRATION = env("NARRATION", "1") == "1"
 VOICE = env("VOICE", "en-US-GuyNeural")
 MUSIC_VOL = float(env("MUSIC_VOL", "0.08" if NARRATION else "0.18"))
@@ -227,6 +229,38 @@ def get_images(article, names, related, prefix, need):
 
 
 # ---- Topic & script ----------------------------------------------------------
+CATS = {   # Minecraft Wiki categories the topic is drawn from (missing ones are skipped)
+    "facts": ["Category:Blocks", "Category:Items", "Category:Generated structures", "Category:Biomes"],
+    "mobs": ["Category:Mobs", "Category:Hostile mobs", "Category:Passive mobs", "Category:Neutral mobs"],
+    "secrets": ["Category:Gameplay", "Category:Game mechanics", "Category:Redstone", "Category:Enchantments"],
+    "lore": ["Category:Removed features", "Category:Unused features", "Category:Joke features",
+             "Category:Generated structures"],
+    "versus": ["Category:Mobs", "Category:Weapons", "Category:Armor", "Category:Tools"],
+    "quiz": ["Category:Mobs", "Category:Hostile mobs", "Category:Passive mobs"],
+    "myth": ["Category:Mobs", "Category:Blocks", "Category:Items", "Category:Game mechanics"],
+}
+
+
+def candidates(limit=40):
+    """Random, less-known subjects from the category and a few of its subcategories, not used yet."""
+    def members(cat):
+        try:
+            return wiki_get(action="query", list="categorymembers", cmtitle=cat, cmtype="page|subcat",
+                            cmlimit=500).get("query", {}).get("categorymembers", [])
+        except Exception:
+            return []
+    titles = set()
+    for cat in CATS.get(CATEGORY, []):
+        got = members(cat)
+        titles |= {m["title"] for m in got if m.get("ns") == 0}
+        subs = [m["title"] for m in got if m.get("ns") == 14]
+        for sub in random.sample(subs, min(3, len(subs))):
+            titles |= {m["title"] for m in members(sub) if m.get("ns") == 0}
+    seen = " | ".join(used[-400:])
+    titles = [t for t in titles if t not in seen and not t.startswith(("List of", "Category"))]
+    return random.sample(titles, min(limit, len(titles)))
+
+
 def pick_topic():
     keys = ["article", "article2"] if KIND == "versus" else ["article"]
     if KIND == "versus":
@@ -236,6 +270,10 @@ def pick_topic():
     else:
         ask = f"Suggest ONE specific Minecraft subject for a YouTube Short. Category: {TOPIC}. "
         fmt = '{"article": "exact Minecraft Wiki (minecraft.wiki) page title"}'
+    cands = candidates()
+    if len(cands) >= 8:
+        ask += (f"Choose ONLY from this list of exact page titles: {cands}. Prefer a lesser-known subject with a "
+                "surprising story; avoid the most famous, overexposed ones that every channel already covers. ")
     for _ in range(5):
         t = gemini(ask + f"Do NOT use any of these: {used[-150:]}. Return JSON: {fmt}",
                    lambda d: isinstance(d, dict) and all(d.get(k) for k in keys))
@@ -276,6 +314,8 @@ def packaging_rules():
               "- The second-to-last line is the peak: the single most surprising fact.\n")
     if random.random() < 0.25:
         r += "- Make the title a short catchy rhyme.\n"
+    r += ("- Information gain: skip the most famous, widely repeated fact about this subject. Connect 2-3 facts "
+          "from the text into ONE new conclusion none of them states alone (e.g. '...which means...').\n")
     return r
 
 
@@ -494,8 +534,10 @@ def build_ass(data, timed, shots, total):
              style("Body", 58, WHITE, 0, 0, 0, 8, 170, 170, BOT_Y + 35),   # centered, above channel name, clear of buttons
              style("Big", 150, WHITE, 4, 9, 4, 5, 0, 0, 0, "&H64000000&"),
              style("Wait", 96, ACC_ASS, 6, 8, 4, 5, 0, 0, 0, "&H64000000&"),
+             style("Brand", 30, "&H50FFFFFF&", 4, 3, 0, 7, 28, 0, TOP_BAR + 18),
              "", "[Events]", "Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text",
-             ev(0, 0, total, "Label", LABEL),
+             ev(0, 0, total, "Label", f"{LABEL}  ·  #{FILE_NO}"),
+             ev(3, 0, total, "Brand", CHANNEL),
              ev(0, 0, total, "Head", "{\\fad(200,0)}" + to_ass(data["headline"]))]
     lines += [ev(1, s, e, "Body", "{\\fad(120,60)}" + to_ass(text)) for text, s, e in timed]
     t, cy = 0.0, TOP_BAR + MID_H // 2
