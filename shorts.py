@@ -35,9 +35,9 @@ CATEGORIES = {
                ["Minecraft versus", "Minecraft comparison"]),
     "quiz": ("GUESS THE MOB", "0xFFB300", "quiz", "Guess the Mob",
              "a visually recognizable Minecraft mob",
-             "Line 1 asks viewers to name it (e.g. 'Can you name this mob in 3 seconds?') and must NOT reveal "
-             "the name. Line 2 reveals it: \"It's the [r]Name[/r]...\". The rest are its best facts. "
-             "The headline must not reveal the name either (e.g. 'GUESS THIS MOB').",
+             "The headline asks viewers to name it (e.g. 'Can you name this mob?'). Give clues (behavior, "
+             "drops, spawn place) WITHOUT the name. Only the LAST line reveals it: \"It's the [r]Name[/r]!\". "
+             "Nothing before the last line may reveal the name.",
              ["Minecraft quiz", "guess the mob"]),
     "myth": ("MYTH VS TRUTH", "0xFF7043", "single", "Minecraft Myth vs Truth",
              "a Minecraft subject surrounded by a popular myth or misconception among players",
@@ -60,13 +60,16 @@ MUSIC_VOL = float(env("MUSIC_VOL", "0.08" if NARRATION else "0.18"))
 SFX = env("SFX", "1") == "1"
 SFX_VOL = float(env("SFX_VOL", "1.0"))                   # 0.5 = quieter, 2 = louder
 LANGS = [l.strip() for l in env("LANGS", "es,pt,de,fr,it,pl,uk,tr").split(",") if l.strip()]
-MIN_SEC, MAX_SEC, SHOT_SEC, MAX_IMAGES = 25.0, 55.0, 3.8, 6
+MISTAKE = env("MISTAKE", "1") == "1"                    # one tiny harmless mistake for comments
+FUNNY = float(env("FUNNY", "0.35"))                     # chance of one silly sound (myth/versus)
+MIN_SEC, MAX_SEC, SHOT_SEC, MAX_IMAGES = 12.0, 30.0, 3.0, 6
+TEASE_SEC = 1.3                                         # frozen "wait for it" opening, paid off at the end
 UA = {"User-Agent": "TerraIncognitaShortsBot/1.0 (https://terraincognita001.github.io/terra-incognita/)"}
 MCWIKI = "https://minecraft.wiki/api.php"
 DISCLAIMER = "Not an official Minecraft product. Not approved by or associated with Mojang or Microsoft."
 
 # ---- Layout 1080x1920: black bar | picture | black bar ------------------------
-TOP_BAR, MID_H = 480, 810
+TOP_BAR, MID_H = 380, 810                                # picture in the eye-line zone
 BOT_Y = TOP_BAR + MID_H
 WHITE, RED, YELLOW = "&H00FFFFFF&", "&H003539E5&", "&H0000D7FF&"   # ASS colours (BGR)
 ACC_ASS = f"&H00{ACCENT[6:8]}{ACCENT[4:6]}{ACCENT[2:4]}&"
@@ -130,7 +133,7 @@ def gemini(prompt, ok, rounds=6):
                 print(model, "incomplete JSON")
             except (requests.RequestException, ValueError, KeyError, IndexError, TypeError) as e:
                 print(model, "error:", type(e).__name__)
-        time.sleep(30)
+        time.sleep(60)
     raise SystemExit("Gemini unavailable, try later")
 
 
@@ -253,20 +256,51 @@ def pick_topic():
     raise SystemExit("No usable topic")
 
 
+HOOKS = [   # Blair Warren angles, one per video in turn
+    "justify their failures (e.g. 'It's not your fault you keep dying to Creepers')",
+    "confirm their suspicions (e.g. 'Villagers really ARE scamming you')",
+    "allay their fears (e.g. 'The Warden is easier to beat than you think')",
+    "encourage their dreams (e.g. 'This trick makes you rich in one day')",
+    "throw rocks at a common enemy (e.g. 'Mojang never told you this')",
+]
+
+
+def packaging_rules():
+    """Hook angle, honest packaging, peak before the end, sometimes a rhyme."""
+    r = ("- title, headline and the first spoken words are about the same subject with the same key words, and "
+         "they open a question: they must NEVER reveal the answer, twist or payoff.\n")
+    if KIND == "quiz":
+        r += "- The line before the reveal is the strongest clue.\n"
+    else:
+        r += (f"- headline hook angle: {HOOKS[len(used) % len(HOOKS)]}.\n"
+              "- The second-to-last line is the peak: the single most surprising fact.\n")
+    if random.random() < 0.25:
+        r += "- Make the title a short catchy rhyme.\n"
+    return r
+
+
 def gen_script(topic):
     source = (f"Use ONLY facts stated in this Minecraft Wiki text, keep names and numbers exact:\n<<<\n"
               f"{topic['text']}\n>>>\n" if topic["text"] else
               "Use only accurate, well-established facts about the current Java Edition; leave out anything "
               "you are not sure about.\n")
+    loop = ("- The headline is spoken FIRST as the hook. The LAST line must be an unfinished sentence with no "
+            "final punctuation that flows straight into the headline when the video loops, e.g. last line "
+            "'And that is exactly why' + headline 'Creepers run from cats'.\n" if KIND != "quiz" else "")
+    extra = "- Exactly one line is a bold but defensible opinion fans will argue with, starting with 'Honestly,' " \
+            "or 'Hot take:' (e.g. 'Hot take: the Warden is the most useless mob').\n"
+    if MISTAKE:
+        extra += ("- Exactly one other line contains ONE small, harmless mistake in a minor number or detail "
+                  "(e.g. a slightly wrong drop count) so fans correct it in the comments. Never in the headline, "
+                  "never about safety. Put that line in the field \"mistake\".\n")
     return gemini(
-        "You write a 30-45 second YouTube Short about Minecraft, voiced by an energetic male narrator over "
+        "You write a 15-25 second YouTube Short about Minecraft, voiced by an energetic male narrator over "
         f'gameplay, about "{" vs ".join(topic["articles"])}". {source}Format: {STORY}\nRules:\n'
-        "- Line 1 is the hook, max 9 words, spoken in the first 2 seconds: a shocking number, a question or a "
-        "contradiction. Never start with 'Did you know' or 'In Minecraft'.\n"
-        "- Then 4-6 concrete details (numbers, versions, blocks, items, conditions).\n"
-        "- Friendly, exciting tone for gamers, no clickbait lies.\n"
-        "- headline: max 7 words, shown on screen the whole time.\n"
-        "- lines: 5-7 narration lines, each max 11 words, total 75-100 words.\n"
+        "- headline: the hook, max 7 words, spoken in the first 2 seconds and shown on screen the whole time: "
+        "a shocking number, a question or a contradiction. Never start with 'Did you know' or 'In Minecraft'.\n"
+        "- Zero filler: only the 2-3 strongest concrete details (numbers, versions, blocks, items).\n"
+        "- Friendly, exciting tone for gamers.\n" + extra + packaging_rules() + loop +
+        "- lines: 3-5 narration lines, each max 10 words, total 35-55 words.\n"
         "- In headline and each line wrap the single most important detail (name or number) in [r]...[/r] "
         "and at most one secondary detail in [y]...[/y].\n"
         "- question: one short question to viewers that invites comments (max 10 words, no markers), "
@@ -292,8 +326,8 @@ def to_ass(t):
 
 
 def all_lines(data):
-    q = plain(data.get("question", ""))
-    return [l for l in data["lines"] if plain(l)] + ([f"[y]{q}[/y]"] if q else [])
+    """Spoken lines; the viewer question lives in the description and comment, so the end can loop."""
+    return [l for l in data["lines"] if plain(l)]
 
 
 # ---- Shots: gameplay clips + wiki pictures -----------------------------------
@@ -326,65 +360,87 @@ class ClipPool:
 
 
 def plan_shots(total, timed, a, b, pool):
-    """Shots: clip (gameplay), image (picture card over blurred gameplay), pixel (quiz), split (versus)."""
-    shot = lambda kind, imgs, dur: {"kind": kind, "imgs": imgs, "dur": dur, "clip": pool.next()}
+    """Shots: freeze (frozen gameplay 'wait for it'), clip (gameplay), image (picture card over blurred gameplay),
+    tease (blurred picture), pixel (quiz, sharper each shot), split (versus). The opening promise is paid off
+    in the last shot: the frozen clip continues, the blurred/pixel picture becomes sharp."""
+    shot = lambda kind, imgs, dur, **kw: {"kind": kind, "imgs": imgs, "dur": dur, "clip": pool.next(), **kw}
     if KIND == "versus" and a and b:
-        head, tail = min(5.0, total * 0.18), min(5.0, total * 0.15)
+        head, tail = min(3.0, total * 0.18), min(3.0, total * 0.18)
         mid = total - head - tail
         n = max(2, round(mid / SHOT_SEC))
         side = lambda i: (a, b)[(i // 2) % 2]
         mids = [shot("image", [side(i)[(i // 4 + 1) % len(side(i))]], mid / n) if i % 2 else
                 shot("clip", [], mid / n) for i in range(n)]
         return [shot("split", [a[0], b[0]], head)] + mids + [shot("split", [a[0], b[0]], tail)]
-    shots = []
-    if KIND == "quiz" and a and len(timed) > 1:
-        shots = [shot("pixel", [a[0]], min(max(timed[1][1], 2.5), 7.0))]
-        a = a[:]                                       # reveal shot shows the same picture sharp
-    rest = total - sum(s["dur"] for s in shots)
-    n = max(2, min(14, round(rest / SHOT_SEC)))
-    if not pool.clips:                                 # no gameplay at all: pictures only
-        return shots + [shot("image", [a[i % len(a)]], rest / n) for i in range(n)]
+    pay = min(3.0, max(2.0, total * 0.18))
+    if KIND == "quiz" and a:                           # pixelated mob gets sharper, answer in the last shot
+        n = max(2, round((total - pay) / SHOT_SEC))
+        return ([shot("pixel", [a[0]], (total - pay) / n, px=int(10 * 4 ** (i / max(1, n - 1)))) for i in range(n)]
+                + [shot("image", [a[0]], pay)])
+    if pool.clips:
+        first = shot("freeze", [], TEASE_SEC)
+        first["start"] = round(random.uniform(0, max(0, probe_duration(first["clip"]) - pay - 0.3)), 2)
+        last = {**first, "kind": "clip", "dur": pay}   # same clip, continues from the frozen moment
+        mid_imgs = a
+    elif a:
+        first, last, mid_imgs = shot("tease", [a[0]], TEASE_SEC), shot("image", [a[0]], pay), a[1:] or a
+    else:
+        raise SystemExit("No clips and no pictures")
+    rest = total - TEASE_SEC - pay
+    n = max(1, min(12, round(rest / SHOT_SEC)))
     out, k = [], 0
-    for i in range(n):                                 # clip, picture, clip, picture... while pictures last
-        if a and i % 2 == (1 if not shots else 0) and k < len(a):
-            out.append(shot("image", [a[k]], rest / n))
+    for i in range(n):                                 # picture, clip, picture... while pictures last
+        if mid_imgs and (not pool.clips or (i % 2 == 0 and k < len(mid_imgs))):
+            out.append(shot("image", [mid_imgs[k % len(mid_imgs)]], rest / n))
             k += 1
         else:
             out.append(shot("clip", [], rest / n))
-    return shots + out
+    return [first] + out + [last]
 
 
 def render_shot(i, sh):
     fr = int(sh["dur"] * 30) + 2
     tail = f"setsar=1,format=yuv420p,pad=1080:1920:0:{TOP_BAR}:black[v]"
-    inputs, bg = [], "[0:v]"
-    if sh["clip"]:
-        start = round(random.uniform(0, max(0, probe_duration(sh["clip"]) - sh["dur"] - 0.2)), 2)
-        inputs += ["-ss", str(start), "-stream_loop", "-1", "-i", str(sh["clip"])]
-    else:
-        inputs += ["-loop", "1", "-framerate", "30", "-i", str(sh["imgs"][0])]
-    for p in sh["imgs"]:
-        inputs += ["-loop", "1", "-framerate", "30", "-i", str(p)]
     fill = f"scale=1080:{MID_H}:force_original_aspect_ratio=increase,crop=1080:{MID_H},fps=30,setsar=1"
-    if sh["kind"] == "clip":
-        fc = f"{bg}{fill},eq=contrast=1.06:saturation=1.15,"
+    if sh["kind"] == "freeze":                         # one frame of the clip, held with a slow push-in
+        ff("-ss", str(sh["start"]), "-i", str(sh["clip"]), "-frames:v", "1", f"freeze{i}.png")
+        inputs = ["-loop", "1", "-framerate", "30", "-i", f"freeze{i}.png"]
+        fc = (f"[0:v]scale=2160:{MID_H * 2}:force_original_aspect_ratio=increase,crop=2160:{MID_H * 2},"
+              f"eq=saturation=0.6:brightness=-0.08,zoompan=z='1+0.06*on/{fr}':x='iw/2-(iw/zoom/2)':"
+              f"y='ih/2-(ih/zoom/2)':d={fr}:s=1080x{MID_H}:fps=30,")
     else:
-        fc = f"{bg}{fill},boxblur=18:2,eq=brightness=-0.3:saturation=0.8[bg];"
-        if sh["kind"] == "split":
-            for k in range(2):
-                fc += (f"[{k + 1}:v]format=rgba,scale=500:640:force_original_aspect_ratio=decrease:"
-                       f"flags={pix_flags(sh['imgs'][k])}[f{k}];")
-            fc += ("[bg][f0]overlay=270-w/2:(H-h)/2:shortest=1[t];[t][f1]overlay=810-w/2:(H-h)/2:shortest=1,"
-                   f"drawbox=x=537:y=0:w=6:h={MID_H}:color={ACCENT}@1:t=fill,")
-        elif sh["kind"] == "pixel":
-            fc += ("[1:v]format=rgba,scale=24:24:force_original_aspect_ratio=decrease,"
-                   "scale=880:640:force_original_aspect_ratio=decrease:flags=neighbor[f];"
-                   "[bg][f]overlay=(W-w)/2:(H-h)/2:shortest=1,")
-        else:                                          # picture card with slow zoom
-            z = f"1+0.10*on/{fr}" if i % 2 == 0 else f"1.10-0.10*on/{fr}"
-            fc += (f"[1:v]format=rgba,scale=900:680:force_original_aspect_ratio=decrease:"
-                   f"flags={pix_flags(sh['imgs'][0])}[f];[bg][f]overlay=(W-w)/2:(H-h)/2:shortest=1,"
-                   f"zoompan=z='{z}':x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':d=1:s=1080x{MID_H}:fps=30,")
+        inputs, bg = [], "[0:v]"
+        if sh["clip"] and sh["kind"] != "tease":
+            start = sh.get("start")
+            if start is None:
+                start = round(random.uniform(0, max(0, probe_duration(sh["clip"]) - sh["dur"] - 0.2)), 2)
+            inputs += ["-ss", str(start), "-stream_loop", "-1", "-i", str(sh["clip"])]
+        else:
+            inputs += ["-loop", "1", "-framerate", "30", "-i", str(sh["imgs"][0])]
+        for p in sh["imgs"]:
+            inputs += ["-loop", "1", "-framerate", "30", "-i", str(p)]
+        if sh["kind"] == "clip":
+            fc = f"{bg}{fill},eq=contrast=1.06:saturation=1.15,"
+        elif sh["kind"] == "tease":                    # heavily blurred picture: what is it?
+            fc = f"{bg}{fill},boxblur=40:4,eq=brightness=-0.2,"
+        else:
+            fc = f"{bg}{fill},boxblur=18:2,eq=brightness=-0.3:saturation=0.8[bg];"
+            if sh["kind"] == "split":
+                for k in range(2):
+                    fc += (f"[{k + 1}:v]format=rgba,scale=500:640:force_original_aspect_ratio=decrease:"
+                           f"flags={pix_flags(sh['imgs'][k])}[f{k}];")
+                fc += ("[bg][f0]overlay=270-w/2:(H-h)/2:shortest=1[t];[t][f1]overlay=810-w/2:(H-h)/2:shortest=1,"
+                       f"drawbox=x=537:y=0:w=6:h={MID_H}:color={ACCENT}@1:t=fill,")
+            elif sh["kind"] == "pixel":
+                px = sh.get("px", 24)
+                fc += (f"[1:v]format=rgba,scale={px}:{px}:force_original_aspect_ratio=decrease,"
+                       "scale=880:640:force_original_aspect_ratio=decrease:flags=neighbor[f];"
+                       "[bg][f]overlay=(W-w)/2:(H-h)/2:shortest=1,")
+            else:                                      # picture card with slow zoom
+                z = f"1+0.10*on/{fr}" if i % 2 == 0 else f"1.10-0.10*on/{fr}"
+                fc += (f"[1:v]format=rgba,scale=900:680:force_original_aspect_ratio=decrease:"
+                       f"flags={pix_flags(sh['imgs'][0])}[f];[bg][f]overlay=(W-w)/2:(H-h)/2:shortest=1,"
+                       f"zoompan=z='{z}':x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':d=1:s=1080x{MID_H}:fps=30,")
     ff(*inputs, "-filter_complex", fc + tail, "-map", "[v]", "-an", "-t", f"{sh['dur']:.3f}", *x264(20),
        f"shot{i}.mp4")
     return f"shot{i}.mp4"
@@ -433,10 +489,11 @@ def build_ass(data, timed, shots, total):
              "Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, "
              "Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, "
              "Alignment, MarginL, MarginR, MarginV, Encoding",
-             style("Label", 40, ACC_ASS, 6, 0, 0, 8, 60, 60, 175),
-             style("Head", 80, WHITE, 1, 0, 0, 8, 60, 60, 250),
-             style("Body", 58, WHITE, 0, 0, 0, 7, 60, 190, BOT_Y + 35),
+             style("Label", 40, ACC_ASS, 6, 0, 0, 8, 60, 60, 125),
+             style("Head", 76, WHITE, 1, 0, 0, 8, 60, 60, 185),
+             style("Body", 58, WHITE, 0, 0, 0, 8, 170, 170, BOT_Y + 35),   # centered, above channel name, clear of buttons
              style("Big", 150, WHITE, 4, 9, 4, 5, 0, 0, 0, "&H64000000&"),
+             style("Wait", 96, ACC_ASS, 6, 8, 4, 5, 0, 0, 0, "&H64000000&"),
              "", "[Events]", "Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text",
              ev(0, 0, total, "Label", LABEL),
              ev(0, 0, total, "Head", "{\\fad(200,0)}" + to_ass(data["headline"]))]
@@ -449,6 +506,10 @@ def build_ass(data, timed, shots, total):
         elif sh["kind"] == "pixel":
             lines.append(ev(2, t, t + sh["dur"], "Big",
                             f"{{\\pos(540,{cy})\\c{ACC_ASS}\\t(0,{int(sh['dur'] * 1000)},\\fscx125\\fscy125)}}?"))
+        elif sh["kind"] in ("freeze", "tease"):
+            lines.append(ev(2, t, t + sh["dur"], "Wait",
+                            f"{{\\pos(540,{cy})\\fscx70\\fscy70\\t(0,200,\\fscx100\\fscy100)"
+                            f"\\t(600,1300,\\alpha&H40&)}}WAIT FOR IT"))
         t += sh["dur"]
     path = W / "subs.ass"
     path.write_text("\n".join(lines) + "\n", encoding="utf-8")
@@ -472,12 +533,34 @@ async def _tts(text, path):
     return words
 
 
+def tighten(path, words):
+    """Cuts every pause longer than 0.25 s down to ~0.12 s and shifts the word timings to match."""
+    log = subprocess.run(["ffmpeg", "-i", str(path), "-af", "silencedetect=noise=-40dB:d=0.25", "-f", "null", "-"],
+                         capture_output=True, text=True).stderr
+    starts = [float(x) for x in re.findall(r"silence_start: ([\d.]+)", log)]
+    ends = [float(x) for x in re.findall(r"silence_end: ([\d.]+)", log)]
+    cuts = [(a + 0.06, b - 0.06) for a, b in zip(starts, ends) if b - a > 0.25]
+    if not cuts:
+        return words
+    keep, prev = [], 0.0
+    for a, b in cuts:
+        keep.append(f"between(t,{prev:.3f},{a:.3f})")
+        prev = b
+    keep.append(f"gte(t,{prev:.3f})")
+    tmp = path.with_name("voice_tight.mp3")
+    subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-i", str(path), "-af",
+                    f"aselect='{'+'.join(keep)}',asetpts=N/SR/TB", str(tmp)], check=True)
+    tmp.replace(path)
+    shift = lambda t: t - sum(b - a for a, b in cuts if b <= t + 0.001)
+    return [(w[0], max(0.0, shift(w[1])), *w[2:]) for w in words]
+
+
 def build_sfx(total, timed, cuts, shots, path):
-    """Soft synthesized sounds: hit at start, taps on captions, whooshes on cuts, low hits on key lines,
-    riser before the question, blips (secrets), riser+hit (quiz), hit on VS."""
+    """Synthesized sounds. Discrete effects never closer than 1 s (the most important wins); under them a low
+    tension bed that keeps rising and cuts off on the last frame, so the loop restarts the tension."""
     sr = 22050
-    buf = [0.0] * int(sr * (total + 1))
-    rnd = random.Random(len(timed) * 31 + int(total))
+    buf = [0.0] * int(sr * (total + 0.05))
+    rnd = random.Random(len(timed) * 31 + int(total * 10))
 
     def add(start, samples, gain=1.0):
         i0 = int(start * sr)
@@ -514,40 +597,56 @@ def build_sfx(total, timed, cuts, shots, path):
             out.append((math.sin(ph) + nmix * nz[k] * 3) * math.exp(-t / (d * 0.3)))
         return out
 
-    def riser(d=1.5):
-        n, y, ph, out = int(d * sr), 0.0, 0.0, []
-        for k in range(n):
-            p = k / n
-            y += (0.02 + 0.25 * p) * (rnd.uniform(-1, 1) - y)
-            ph += 2 * math.pi * (120 + 500 * p * p) / sr
-            out.append((y * 1.5 + 0.15 * math.sin(ph)) * p ** 2)
-        return out
-
     def blip(f, d=0.09):
         n = int(d * sr)
         return [0.35 * math.copysign(1, math.sin(2 * math.pi * f * k / sr)) * math.exp(-k / (0.03 * sr))
                 for k in range(n)]
 
-    add(0, boom(60, 1.2, 0.3), 0.8)
-    for text, s, _ in timed[:-1]:
-        add(s, tap(), 0.55)
-        if "[r]" in text:
-            add(s + 0.05, boom(80, 0.5, 0.15), 0.3)
+    def funny():                                       # a silly sound that does not match the picture
+        kind, n, ph, out = rnd.choice(["boing", "fart", "slide"]), int(0.6 * sr), 0.0, []
+        for k in range(n):
+            t = k / sr
+            if kind == "boing":
+                f = 180 + 120 * math.sin(2 * math.pi * 9 * t) * math.exp(-t * 4)
+                v = math.sin(ph) * math.exp(-t * 4)
+            elif kind == "fart":
+                f = 70 + 25 * rnd.uniform(-1, 1) - 30 * t
+                v = (2 * (ph / (2 * math.pi) % 1) - 1) * min(1, t * 30) * math.exp(-t * 3)
+            else:
+                f = 400 + 900 * t
+                v = math.sin(ph) * min(1, t * 20, (0.6 - t) * 10)
+            ph += 2 * math.pi * f / sr
+            out.append(0.8 * v)
+        return out
+
+    events = []                                        # (time, priority, samples, gain)
+    events.append((0.0, 9, boom(60, 1.0, 0.3), 0.8))
+    for idx, (text, s, _) in enumerate(timed):
+        events.append((s, 5 if "[r]" in text else 2, boom(80, 0.5, 0.15) if "[r]" in text else tap(),
+                       0.3 if "[r]" in text else 0.55))
     for t in cuts:
-        add(max(0, t - 0.25), whoosh(), 0.45)
-    if len(timed) > 1:
-        add(max(0, timed[-1][1] - 1.5), riser(1.5), 0.35)
-    if CATEGORY == "secrets":                        # soft retro blips
-        for k, f in enumerate((523, 659, 784, 1046)):
-            add(0.5 + k * 0.11, blip(f), 0.25)
+        events.append((max(0, t - 0.2), 3, whoosh(0.45), 0.45))
     t = 0.0
     for sh in shots:
-        if sh["kind"] == "pixel":
-            add(0.3, riser(max(1.0, sh["dur"] - 0.3)), 0.4)
-            add(sh["dur"], boom(65, 1.0, 0.3), 0.7)
-        elif sh["kind"] == "split":
-            add(t + 0.05, boom(60, 0.9, 0.35), 0.6)
+        if sh["kind"] == "split":
+            events.append((t + 0.05, 7, boom(60, 0.9, 0.35), 0.6))
         t += sh["dur"]
+    events.append((max(0, total - shots[-1]["dur"]), 8, boom(70, 0.8, 0.3), 0.7))   # payoff hit
+    if CATEGORY == "secrets":
+        events.append((0.5, 6, sum((blip(f) + [0.0] * int(0.02 * sr) for f in (523, 659, 784, 1046)), []), 0.25))
+    if KIND != "quiz" and CATEGORY in ("myth", "versus") and len(timed) > 2 and rnd.random() < FUNNY:
+        events.append((timed[1][1] + 0.3, 8, funny(), 0.6))
+    taken = []
+    for t, prio, smp, g in sorted(events, key=lambda e: -e[1]):
+        if all(abs(t - u) >= 1.0 for u in taken):      # max 1 effect per second
+            taken.append(t)
+            add(t, smp, g)
+    bed = noise(len(buf), 0.006)                       # rising tension bed + slow low drone, hard cut at end
+    ph = 0.0
+    for k in range(len(buf)):
+        p = k / len(buf)
+        ph += 2 * math.pi * (42 + 14 * p) / sr
+        buf[k] += (bed[k] * 1.8 + 0.12 * math.sin(ph)) * (0.25 + 1.6 * p * p) * min(1, k / (0.3 * sr))
     peak = max(1e-6, max(abs(v) for v in buf))
     with wave.open(str(path), "wb") as w:
         w.setnchannels(1)
@@ -565,7 +664,7 @@ def render(ass_path, total):
         srcs.append((["-i", "voice.mp3"], "highpass=f=90,lowpass=f=8500,deesser=i=0.6"))
     if MUSIC.exists():
         srcs.append((["-ss", str(MUSIC_START), "-stream_loop", "-1", "-i", str(MUSIC.resolve())],
-                     f"volume={MUSIC_VOL},afade=t=in:d=0.4,afade=t=out:st={max(0, total - 1.5):.2f}:d=1.5"))
+                     f"volume={MUSIC_VOL},afade=t=in:d=0.3"))
     if SFX and (W / "sfx.wav").exists():
         srcs.append((["-i", "sfx.wav"], f"lowpass=f=6000,volume={0.12 * SFX_VOL:.3f}"))
     if not srcs:
@@ -582,10 +681,10 @@ def render(ass_path, total):
 def make_video(data, topic):
     lines, words = all_lines(data), []
     spoken = plain(data["headline"]) + ". " + " ".join(plain(l) for l in lines)
-    total = min(MAX_SEC, max(MIN_SEC, 3 + len(spoken.split()) * 0.42))
+    total = min(MAX_SEC, max(MIN_SEC, 1 + len(spoken.split()) * 0.38))
     if NARRATION:
-        words = asyncio.run(_tts(spoken, W / "voice.mp3"))
-        total = min(MAX_SEC, max(MIN_SEC, probe_duration(W / "voice.mp3") + 0.8))
+        words = tighten(W / "voice.mp3", asyncio.run(_tts(spoken, W / "voice.mp3")))
+        total = min(MAX_SEC, max(MIN_SEC, probe_duration(W / "voice.mp3") + 0.15))   # no tail: seamless loop
     arts, related = topic["articles"], data.get("related", [])
     if len(arts) > 1:                                # versus: related pictures split between sides
         imgs_a = get_images(arts[0], topic["images"][0], related[0::2], "a", 4)
@@ -690,7 +789,7 @@ def post_comment(yt, vid, data):
     try:
         if q:
             yt.commentThreads().insert(part="snippet", body={"snippet": {"videoId": vid, "topLevelComment": {
-                "snippet": {"textOriginal": f"{q} 👇\n\nFollow for a new Minecraft secret every day."}}}}).execute()
+                "snippet": {"textOriginal": f"{q} 👇"}}}}).execute()
             print("comment posted")
     except Exception as e:
         print("comment skipped (re-run auth.py with new scopes):", str(e)[:200])
