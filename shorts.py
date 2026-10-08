@@ -52,8 +52,9 @@ LABEL, ACCENT, KIND, PLAYLIST, TOPIC, STORY, CAT_TAGS = CATEGORIES[CATEGORY]
 CLIPS = sorted(pathlib.Path("clips").glob("*.mp4"))     # your own gameplay clips
 random.shuffle(CLIPS)
 IMAGES = env("IMAGES", "1") == "1"                      # 0 = clips only, no wiki pictures
-MUSIC = pathlib.Path("music.mp3")                       # background track, repo root
-MUSIC_START = float(env("MUSIC_START", "0"))
+MUSIC_DIR = pathlib.Path("music")                       # your tracks: music/<category>/*.mp3 or music/*.mp3
+MUSIC_EXT = {".mp3", ".wav", ".m4a", ".ogg", ".flac", ".aac"}
+MUSIC_START = env("MUSIC_START", "auto")                # seconds, or "auto" = varies per video
 CHANNEL = env("CHANNEL", "TERRA INCOGNITA")                   # shown in every frame
 FILE_NO = len(used) + 1                                 # running number shown on screen
 NARRATION = env("NARRATION", "1") == "1"
@@ -697,6 +698,26 @@ def build_sfx(total, timed, cuts, shots, path):
         w.writeframes(array.array("h", (int(v / peak * 26000) for v in buf)).tobytes())
 
 
+def pick_music(total):
+    """Track for this video: music/<CATEGORY>/ first, then music/ root, then legacy music.mp3.
+    Rotates through the pool by run number, so the same track never plays twice in a row."""
+    def tracks(d):
+        return sorted(f for f in d.glob("*") if f.suffix.lower() in MUSIC_EXT) if d.is_dir() else []
+    pool = tracks(MUSIC_DIR / CATEGORY) or tracks(MUSIC_DIR)
+    if not pool and pathlib.Path("music.mp3").exists():
+        pool = [pathlib.Path("music.mp3")]
+    if not pool:
+        return None, 0.0
+    track = pool[len(used) % len(pool)]
+    if MUSIC_START != "auto":
+        start = float(MUSIC_START)
+    else:
+        spare = max(0.0, probe_duration(track) - total - 1)
+        start = round(random.uniform(0, spare), 1) if spare > 1 else 0.0
+    print("music:", track, "| start:", start)
+    return track, start
+
+
 def render(ass_path, total):
     args = ["-i", "bg.mp4"]
     fc = [f"[0:v]drawbox=x=0:y={TOP_BAR - 6}:w=1080:h=6:color={ACCENT}@1:t=fill,drawbox=x=0:y={BOT_Y}:w=1080:"
@@ -704,8 +725,9 @@ def render(ass_path, total):
     srcs = []                                        # (input args, filter) for each audio layer
     if NARRATION:
         srcs.append((["-i", "voice.mp3"], "highpass=f=90,lowpass=f=8500,deesser=i=0.6"))
-    if MUSIC.exists():
-        srcs.append((["-ss", str(MUSIC_START), "-stream_loop", "-1", "-i", str(MUSIC.resolve())],
+    track, start = pick_music(total)
+    if track:
+        srcs.append((["-ss", str(start), "-stream_loop", "-1", "-i", str(track.resolve())],
                      f"volume={MUSIC_VOL},afade=t=in:d=0.3"))
     if SFX and (W / "sfx.wav").exists():
         srcs.append((["-i", "sfx.wav"], f"lowpass=f=6000,volume={0.12 * SFX_VOL:.3f}"))
