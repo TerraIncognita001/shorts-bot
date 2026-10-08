@@ -66,5 +66,16 @@
   "hl": "Minecraft just added Frostbites to 26.4",
   "vid": "wEZ4i2DAqfw",
   "ts": 1791499235
+ },
+ {
+  "key": "Bedrock",
+  "arts": [
+   "Bedrock"
+  ],
+  "fmt": "myth",
+  "hook": "insider",
+  "hl": "Mojang hid Bedrock secrets in survival.",
+  "vid": "jD4VM8L56PY",
+  "ts": 1791502520
  }
 ]
