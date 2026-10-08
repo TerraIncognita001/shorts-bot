@@ -286,7 +286,17 @@ def download(url, name):
         p.write_bytes(r.content)
         if not probe(p, "stream=width"):
             raise ValueError("not an image")
-        return p.resolve()
+        png = p.with_name(p.stem + "_ok.png")                  # must really decode (some webp files do not)
+        t = subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-i", str(p), "-frames:v", "1", str(png)],
+                           capture_output=True)
+        if t.returncode != 0 or not png.exists():
+            try:
+                from PIL import Image
+                Image.open(p).convert("RGBA").save(png)
+            except Exception:
+                raise ValueError("cannot decode image")
+        p.unlink(missing_ok=True)
+        return png.resolve()
     except Exception as e:
         print("skip image:", e)
 
