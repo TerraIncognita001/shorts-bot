@@ -1,21 +1,70 @@
 [
- "Чому ми бачимо сни лише про знайомих людей?",
- "Why Endermen Hate Water and Stare at You",
- "The Secret Language of Minecraft Villagers",
- "The Tragic Secret Behind Creeper Explosions",
- "The Hidden History of the Ancient City Portal",
- "The Terrifying Secret of the Minecraft Warden",
- "The Dark Secret of Minecraft Item Frames",
- "The Hidden Secret of Minecraft Paintings",
- "The Heartbreaking Reason Ghasts Cry in Minecraft",
- "The Tragic Secret Behind Iron Golem Poppies",
- "Chalkboard",
- "Shears vs Brush",
- "Zombie Horse",
- "Impaling",
- "Bucket of Pufferfish",
- "Elder Guardian Ghost",
- "South-east rule",
- "Obsidian Wall",
- "Golden Horse Armor vs Iron Horse Armor"
+ {
+  "key": "Чому ми бачимо сни лише про знайомих людей?"
+ },
+ {
+  "key": "Why Endermen Hate Water and Stare at You"
+ },
+ {
+  "key": "The Secret Language of Minecraft Villagers"
+ },
+ {
+  "key": "The Tragic Secret Behind Creeper Explosions"
+ },
+ {
+  "key": "The Hidden History of the Ancient City Portal"
+ },
+ {
+  "key": "The Terrifying Secret of the Minecraft Warden"
+ },
+ {
+  "key": "The Dark Secret of Minecraft Item Frames"
+ },
+ {
+  "key": "The Hidden Secret of Minecraft Paintings"
+ },
+ {
+  "key": "The Heartbreaking Reason Ghasts Cry in Minecraft"
+ },
+ {
+  "key": "The Tragic Secret Behind Iron Golem Poppies"
+ },
+ {
+  "key": "Chalkboard"
+ },
+ {
+  "key": "Shears vs Brush"
+ },
+ {
+  "key": "Zombie Horse"
+ },
+ {
+  "key": "Impaling"
+ },
+ {
+  "key": "Bucket of Pufferfish"
+ },
+ {
+  "key": "Elder Guardian Ghost"
+ },
+ {
+  "key": "South-east rule"
+ },
+ {
+  "key": "Obsidian Wall"
+ },
+ {
+  "key": "Golden Horse Armor vs Iron Horse Armor"
+ },
+ {
+  "key": "Java Edition 26.4",
+  "arts": [
+   "Java Edition 26.4"
+  ],
+  "fmt": "news",
+  "hook": "news",
+  "hl": "Minecraft just added Frostbites to 26.4",
+  "vid": "wEZ4i2DAqfw",
+  "ts": 1791499235
+ }
 ]
