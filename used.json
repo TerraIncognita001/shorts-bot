@@ -89,5 +89,16 @@
   "hl": "Anvil or Table: Which destroys gear?",
   "vid": "kIU7skC-qw4",
   "ts": 1791534457
+ },
+ {
+  "key": "Warden",
+  "arts": [
+   "Warden"
+  ],
+  "fmt": "quiz",
+  "hook": "quiz",
+  "hl": "99% of players can't name this mob!",
+  "vid": "3BDdJ0F9gng",
+  "ts": 1791587922
  }
 ]
