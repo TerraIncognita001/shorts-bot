@@ -77,5 +77,17 @@
   "hl": "Mojang hid Bedrock secrets in survival.",
   "vid": "jD4VM8L56PY",
   "ts": 1791502520
+ },
+ {
+  "key": "Enchanting Table vs Anvil",
+  "arts": [
+   "Enchanting Table",
+   "Anvil"
+  ],
+  "fmt": "versus",
+  "hook": "versus",
+  "hl": "Anvil or Table: Which destroys gear?",
+  "vid": "kIU7skC-qw4",
+  "ts": 1791534457
  }
 ]
