@@ -1617,16 +1617,23 @@ PROSODY = {"hook": (4, "+3Hz", "+0%"), "beat": (0, "+0Hz", "+0%"), "cliff": (-4,
            "answer": (-3, "+0Hz", "+8%")}                  # (rate offset %, pitch, volume) per kind of line
 
 
+AZURE_BAD = []                                           # set once Azure fails, then edge-tts is used
 WOBBLE = [(0, 0), (3, 2), (-2, -2), (2, 1), (-1, 2)]      # small rate/pitch drift between lines: less robotic
 
 
-async def _tts_line(text, path, kind, idx=0):
-    import edge_tts
+def _prosody(kind, idx=0):
+    """(rate %, pitch, volume %) for one line: base speed + per-kind offsets + a small drift between beats."""
     d_rate, pitch, vol = PROSODY.get(kind, PROSODY["beat"])
     if kind == "beat":
         wr, wp = WOBBLE[idx % len(WOBBLE)]
         d_rate, pitch = d_rate + wr, f"{int(pitch[:-2]) + wp:+d}Hz"
-    kw = dict(rate=f"{RATE + d_rate:+d}%", pitch=pitch, volume=vol)
+    return f"{RATE + d_rate:+d}%", pitch, vol
+
+
+async def _tts_line(text, path, kind, idx=0):
+    import edge_tts
+    rate, pitch, vol = _prosody(kind, idx)
+    kw = dict(rate=rate, pitch=pitch, volume=vol)
     try:
         comm = edge_tts.Communicate(text, VOICE, boundary="WordBoundary", **kw)
     except TypeError:
@@ -1641,6 +1648,37 @@ async def _tts_line(text, path, kind, idx=0):
     return words
 
 
+def azure_ssml(text, kind, idx=0):
+    rate, pitch, vol = _prosody(kind, idx)
+    return ('<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="en-US">'
+            f'<voice name="{VOICE}"><prosody rate="{rate}" pitch="{pitch}" volume="{vol}">{html.escape(text, quote=False)}'
+            "</prosody></voice></speak>")
+
+
+def _azure_line(text, path, kind, idx=0):
+    """Official Azure Speech (free F0 tier: 500k characters a month) with word timings; needs the key and region."""
+    import azure.cognitiveservices.speech as sp
+    cfg = sp.SpeechConfig(subscription=env("AZURE_SPEECH_KEY"), region=env("AZURE_SPEECH_REGION"))
+    cfg.set_speech_synthesis_output_format(sp.SpeechSynthesisOutputFormat.Audio24Khz48KBitRateMonoMp3)
+    syn = sp.SpeechSynthesizer(speech_config=cfg, audio_config=None)
+    words = []
+
+    def on_word(e):
+        bt = getattr(e, "boundary_type", None)
+        if bt is not None and bt != sp.SpeechSynthesisBoundaryType.Word:
+            return
+        d = e.duration
+        words.append((e.text, e.audio_offset / 1e7, d.total_seconds() if hasattr(d, "total_seconds") else float(d) / 1e7))
+
+    syn.synthesis_word_boundary.connect(on_word)
+    res = syn.speak_ssml_async(azure_ssml(text, kind, idx)).get()
+    if res.reason != sp.ResultReason.SynthesizingAudioCompleted:
+        det = getattr(res, "cancellation_details", None)
+        raise RuntimeError(f"azure tts {res.reason} {getattr(det, 'error_details', '')}"[:200])
+    pathlib.Path(path).write_bytes(res.audio_data)
+    return words
+
+
 def tts_all(lines):
     """[(kind, text)] -> [(mp3 path, [(word, start s, duration s)])]; every line is its own take, retried on failure."""
     async def go():
@@ -1649,7 +1687,15 @@ def tts_all(lines):
             for attempt in range(4):
                 try:
                     p = W / f"line{i}.mp3"
-                    words = await _tts_line(text, p, kind, i)
+                    words = None
+                    if env("AZURE_SPEECH_KEY") and env("AZURE_SPEECH_REGION") and not AZURE_BAD:
+                        try:
+                            words = _azure_line(text, p, kind, i)
+                        except Exception as e:
+                            AZURE_BAD.append(1)
+                            print("azure tts failed, using edge-tts:", type(e).__name__, str(e)[:120])
+                    if words is None:
+                        words = await _tts_line(text, p, kind, i)
                     if p.stat().st_size < 800:
                         raise RuntimeError("empty audio")
                     out.append((p, words))
