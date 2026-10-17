@@ -58,7 +58,8 @@
  {"key": "Husk", "arts": ["Husk"], "qtype": "what_if", "q": "The Husk mob: what happens if you submerge it underwater?", "vid": "HN7GCAuaGOM", "ts": 1792193576},
  {"key": "Evoker", "arts": ["Evoker"], "qtype": "what_if", "q": "A blue sheep near an Evoker: what happens?", "vid": "7ZOk6v6P2MM", "ts": 1792198051},
  {"key": "Java Edition 26.4", "arts": ["Java Edition 26.4"], "qtype": "new", "q": "Potion of Freezing: is it actually useful?", "vid": "XhYpJ1f2w40", "ts": 1792200993},
- {"key": "Clock", "arts": ["Clock"], "qtype": "why", "q": "A Clock item spins wildly in the Nether, why?", "vid": "mTnXPpyTF6M", "ts": 1792219210}
+ {"key": "Clock", "arts": ["Clock"], "qtype": "why", "q": "A Clock item spins wildly in the Nether, why?", "vid": "mTnXPpyTF6M", "ts": 1792219210},
+ {"key": "Lava", "arts": ["Lava"], "qtype": "why", "q": "Why does lava flow faster in the Nether?", "vid": "L3JTiDSq4cE", "ts": 1792222658}
 ],
 "clips": {
  "clip000.mp4": {"w": 1280, "h": 720, "d": 15.0, "br": 0.382, "mo": 0.135, "tags": ["build", "forest"], "ok": true, "tagged": true},
