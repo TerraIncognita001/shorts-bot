@@ -55,7 +55,8 @@
  {"key": "Silverfish", "arts": ["Silverfish"], "qtype": "why", "q": "Why does a Silverfish inside a block snap you?", "vid": "I-oaF7U3Ar0", "ts": 1792114577},
  {"key": "Java Edition 26.4", "arts": ["Java Edition 26.4"], "qtype": "new", "q": "Can Brittle ice survive your heavy footsteps?", "vid": "bc3C0G-Y_gs", "ts": 1792133174},
  {"key": "Monster Spawner", "arts": ["Monster Spawner"], "qtype": "howmany", "q": "How many mobs does it take to disable spawners?", "vid": "KRxHqBZDmRs", "ts": 1792136614},
- {"key": "Husk", "arts": ["Husk"], "qtype": "what_if", "q": "The Husk mob: what happens if you submerge it underwater?", "vid": "HN7GCAuaGOM", "ts": 1792193576}
+ {"key": "Husk", "arts": ["Husk"], "qtype": "what_if", "q": "The Husk mob: what happens if you submerge it underwater?", "vid": "HN7GCAuaGOM", "ts": 1792193576},
+ {"key": "Evoker", "arts": ["Evoker"], "qtype": "what_if", "q": "A blue sheep near an Evoker: what happens?", "vid": "7ZOk6v6P2MM", "ts": 1792198051}
 ],
 "clips": {
  "clip000.mp4": {"w": 1280, "h": 720, "d": 15.0, "br": 0.382, "mo": 0.135, "tags": ["build", "forest"], "ok": true, "tagged": true},
