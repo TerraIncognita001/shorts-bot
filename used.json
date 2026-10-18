@@ -60,7 +60,8 @@
  {"key": "Java Edition 26.4", "arts": ["Java Edition 26.4"], "qtype": "new", "q": "Potion of Freezing: is it actually useful?", "vid": "XhYpJ1f2w40", "ts": 1792200993},
  {"key": "Clock", "arts": ["Clock"], "qtype": "why", "q": "A Clock item spins wildly in the Nether, why?", "vid": "mTnXPpyTF6M", "ts": 1792219210},
  {"key": "Lava", "arts": ["Lava"], "qtype": "why", "q": "Why does lava flow faster in the Nether?", "vid": "L3JTiDSq4cE", "ts": 1792222658},
- {"key": "Diamond vs Netherite", "arts": ["Diamond", "Netherite"], "qtype": "which", "q": "Which is rarer: finding natural Diamond or Netherite?", "vid": "Y4x5APxlMUc", "ts": 1792279730}
+ {"key": "Diamond vs Netherite", "arts": ["Diamond", "Netherite"], "qtype": "which", "q": "Which is rarer: finding natural Diamond or Netherite?", "vid": "Y4x5APxlMUc", "ts": 1792279730},
+ {"key": "Turtle", "arts": ["Turtle"], "qtype": "what_if", "q": "Turtle struck by lightning: what happens?", "vid": "jXKeugyAqMo", "ts": 1792284588}
 ],
 "clips": {
  "clip000.mp4": {"w": 1280, "h": 720, "d": 15.0, "br": 0.382, "mo": 0.135, "tags": ["build", "forest"], "ok": true, "tagged": true},
