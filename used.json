@@ -69,7 +69,8 @@
  {"key": "Guardian vs Drowned", "arts": ["Guardian", "Drowned"], "qtype": "which", "q": "Guardian or Drowned: which is stronger?", "vid": "wGE8oqX4Nhw", "ts": 1792370831},
  {"key": "Trident", "arts": ["Trident"], "qtype": "what_if", "q": "Tridents with 1 durability, what happens if you throw it?", "vid": "fxItSubpwRE", "ts": 1792374371},
  {"key": "Cat", "arts": ["Cat"], "qtype": "what_if", "q": "A Creeper hissing: what happens if you bring a cat?", "vid": "ORxXZXByD5A", "ts": 1792392748},
- {"key": "Mooshroom", "arts": ["Mooshroom"], "qtype": "what_if", "q": "A Mooshroom cow: what happens if you shear it?", "vid": "IAtT95yhn1A", "ts": 1792396478}
+ {"key": "Mooshroom", "arts": ["Mooshroom"], "qtype": "what_if", "q": "A Mooshroom cow: what happens if you shear it?", "vid": "IAtT95yhn1A", "ts": 1792396478},
+ {"key": "Wolf", "arts": ["Wolf"], "qtype": "why", "q": "A tamed wolf attacks skeletons, but why ignore zombies?", "vid": "vVMuC5YA9OA", "ts": 1792453004}
 ],
 "clips": {
  "clip000.mp4": {"w": 1280, "h": 720, "d": 15.0, "br": 0.382, "mo": 0.135, "tags": ["build", "forest"], "ok": true, "tagged": true},
