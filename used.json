@@ -65,7 +65,8 @@
  {"key": "Nether Portal vs End portal", "arts": ["Nether Portal", "End portal"], "qtype": "which", "q": "Nether portal or End portal: which is faster?", "vid": "L2w6axHJQkw", "ts": 1792287434},
  {"key": "Witch", "arts": ["Witch"], "qtype": "why", "q": "Witch mobs: why do they never drown?", "vid": "NUt9qjuq0XQ", "ts": 1792305575},
  {"key": "Ender Dragon vs Wither", "arts": ["Ender Dragon", "Wither"], "qtype": "which", "q": "Ender Dragon vs Wither: which boss is stronger?", "vid": "utTy89hUwgo", "ts": 1792309418},
- {"key": "Beacon", "arts": ["Beacon"], "qtype": "what_if", "q": "Active Beacon beam: what happens under tinted glass?", "vid": "fh544Bs2iR8", "ts": 1792366286}
+ {"key": "Beacon", "arts": ["Beacon"], "qtype": "what_if", "q": "Active Beacon beam: what happens under tinted glass?", "vid": "fh544Bs2iR8", "ts": 1792366286},
+ {"key": "Guardian vs Drowned", "arts": ["Guardian", "Drowned"], "qtype": "which", "q": "Guardian or Drowned: which is stronger?", "vid": "wGE8oqX4Nhw", "ts": 1792370831}
 ],
 "clips": {
  "clip000.mp4": {"w": 1280, "h": 720, "d": 15.0, "br": 0.382, "mo": 0.135, "tags": ["build", "forest"], "ok": true, "tagged": true},
