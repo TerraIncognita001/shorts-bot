@@ -67,7 +67,8 @@
  {"key": "Ender Dragon vs Wither", "arts": ["Ender Dragon", "Wither"], "qtype": "which", "q": "Ender Dragon vs Wither: which boss is stronger?", "vid": "utTy89hUwgo", "ts": 1792309418},
  {"key": "Beacon", "arts": ["Beacon"], "qtype": "what_if", "q": "Active Beacon beam: what happens under tinted glass?", "vid": "fh544Bs2iR8", "ts": 1792366286},
  {"key": "Guardian vs Drowned", "arts": ["Guardian", "Drowned"], "qtype": "which", "q": "Guardian or Drowned: which is stronger?", "vid": "wGE8oqX4Nhw", "ts": 1792370831},
- {"key": "Trident", "arts": ["Trident"], "qtype": "what_if", "q": "Tridents with 1 durability, what happens if you throw it?", "vid": "fxItSubpwRE", "ts": 1792374371}
+ {"key": "Trident", "arts": ["Trident"], "qtype": "what_if", "q": "Tridents with 1 durability, what happens if you throw it?", "vid": "fxItSubpwRE", "ts": 1792374371},
+ {"key": "Cat", "arts": ["Cat"], "qtype": "what_if", "q": "A Creeper hissing: what happens if you bring a cat?", "vid": "ORxXZXByD5A", "ts": 1792392748}
 ],
 "clips": {
  "clip000.mp4": {"w": 1280, "h": 720, "d": 15.0, "br": 0.382, "mo": 0.135, "tags": ["build", "forest"], "ok": true, "tagged": true},
