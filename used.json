@@ -72,7 +72,8 @@
  {"key": "Mooshroom", "arts": ["Mooshroom"], "qtype": "what_if", "q": "A Mooshroom cow: what happens if you shear it?", "vid": "IAtT95yhn1A", "ts": 1792396478},
  {"key": "Wolf", "arts": ["Wolf"], "qtype": "why", "q": "A tamed wolf attacks skeletons, but why ignore zombies?", "vid": "vVMuC5YA9OA", "ts": 1792453004},
  {"key": "Spider", "arts": ["Spider"], "qtype": "can", "q": "Can a Spider climb up honey blocks?", "vid": "U7NxSblhMmk", "ts": 1792457394},
- {"key": "Java Edition 26.4", "arts": ["Java Edition 26.4"], "qtype": "new", "q": "Java Edition 26.4, what is the best addition?", "vid": "0zffuKegYn0", "ts": 1792460546}
+ {"key": "Java Edition 26.4", "arts": ["Java Edition 26.4"], "qtype": "new", "q": "Java Edition 26.4, what is the best addition?", "vid": "0zffuKegYn0", "ts": 1792460546},
+ {"key": "Villager", "arts": ["Villager"], "qtype": "what_if", "q": "A villager wearing Netherite armor, does it tank?", "vid": "upQl5MGE96Y", "ts": 1792478614}
 ],
 "clips": {
  "clip000.mp4": {"w": 1280, "h": 720, "d": 15.0, "br": 0.382, "mo": 0.135, "tags": ["build", "forest"], "ok": true, "tagged": true},
