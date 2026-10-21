@@ -75,7 +75,8 @@
  {"key": "Java Edition 26.4", "arts": ["Java Edition 26.4"], "qtype": "new", "q": "Java Edition 26.4, what is the best addition?", "vid": "0zffuKegYn0", "ts": 1792460546},
  {"key": "Villager", "arts": ["Villager"], "qtype": "what_if", "q": "A villager wearing Netherite armor, does it tank?", "vid": "upQl5MGE96Y", "ts": 1792478614},
  {"key": "Monster Spawner", "arts": ["Monster Spawner"], "qtype": "why", "q": "Monster spawner mobs spin faster before spawning, why?", "vid": "EPk1ZX7jZcY", "ts": 1792482661},
- {"key": "Zombified Piglin", "arts": ["Zombified Piglin"], "qtype": "what_if", "q": "Zombified piglin pack: what happens if you one-shot one?", "vid": "A7ptGfGznE8", "ts": 1792539270}
+ {"key": "Zombified Piglin", "arts": ["Zombified Piglin"], "qtype": "what_if", "q": "Zombified piglin pack: what happens if you one-shot one?", "vid": "A7ptGfGznE8", "ts": 1792539270},
+ {"key": "Wandering Trader", "arts": ["Wandering Trader"], "qtype": "why", "q": "A Wandering Trader drinks invisibility at dusk, why?", "vid": "by9YbauxNrs", "ts": 1792543663}
 ],
 "clips": {
  "clip000.mp4": {"w": 1280, "h": 720, "d": 15.0, "br": 0.382, "mo": 0.135, "tags": ["build", "forest"], "ok": true, "tagged": true},
