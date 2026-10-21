@@ -78,7 +78,8 @@
  {"key": "Zombified Piglin", "arts": ["Zombified Piglin"], "qtype": "what_if", "q": "Zombified piglin pack: what happens if you one-shot one?", "vid": "A7ptGfGznE8", "ts": 1792539270},
  {"key": "Wandering Trader", "arts": ["Wandering Trader"], "qtype": "why", "q": "A Wandering Trader drinks invisibility at dusk, why?", "vid": "by9YbauxNrs", "ts": 1792543663},
  {"key": "Java Edition 26.4", "arts": ["Java Edition 26.4"], "qtype": "new", "q": "Can brittle ice survive your heavy footsteps?", "vid": "rHLanNXDFAk", "ts": 1792546908},
- {"key": "Warden", "arts": ["Warden"], "qtype": "howmany", "q": "How many sonic booms destroy your Netherite armor?", "vid": "clr3HPyTj1U", "ts": 1792565365}
+ {"key": "Warden", "arts": ["Warden"], "qtype": "howmany", "q": "How many sonic booms destroy your Netherite armor?", "vid": "clr3HPyTj1U", "ts": 1792565365},
+ {"key": "Sleeping", "arts": ["Sleeping"], "qtype": "myth", "q": "A red bed: does sleeping speed up crops?", "vid": "YSnCv6zOSTs", "ts": 1792569220}
 ],
 "clips": {
  "clip000.mp4": {"w": 1280, "h": 720, "d": 15.0, "br": 0.382, "mo": 0.135, "tags": ["build", "forest"], "ok": true, "tagged": true},
