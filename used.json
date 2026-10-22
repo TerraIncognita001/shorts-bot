@@ -84,7 +84,8 @@
  {"key": "Java Edition 26.4", "arts": ["Java Edition 26.4"], "qtype": "new", "q": "Ice balls in 26.4: are they actually useful?", "vid": "LxH-nDyX098", "ts": 1792630009},
  {"key": "Cactus", "arts": ["Cactus"], "qtype": "myth", "q": "Can a Cactus really destroy fireproof Netherite?", "vid": "iCwrKFWGQZk", "ts": 1792633262},
  {"key": "Shield", "arts": ["Shield"], "qtype": "secret", "q": "Arrows shoot straight through a fully raised shield!", "vid": "LYsFjAdHpDY", "ts": 1792634185},
- {"key": "Mace", "arts": ["Mace"], "qtype": "op", "q": "ONE SHOT THE WARDEN WITH [R]ZERO[/R] DAMAGE!", "vid": "4eKNJiz02mU", "ts": 1792636207}
+ {"key": "Mace", "arts": ["Mace"], "qtype": "op", "q": "ONE SHOT THE WARDEN WITH [R]ZERO[/R] DAMAGE!", "vid": "4eKNJiz02mU", "ts": 1792636207},
+ {"key": "Creeper", "arts": ["Creeper"], "qtype": "trick", "q": "TANK CREEPER EXPLOSIONS WITH [R]ONE[/R] TRAPDOOR!", "vid": "DRLIX8uHmIc", "ts": 1792651570}
 ],
 "clips": {
  "clip000.mp4": {"w": 1280, "h": 720, "d": 15.0, "br": 0.382, "mo": 0.135, "tags": ["build", "forest"], "ok": true, "tagged": true},
