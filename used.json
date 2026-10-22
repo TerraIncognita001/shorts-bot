@@ -80,7 +80,8 @@
  {"key": "Java Edition 26.4", "arts": ["Java Edition 26.4"], "qtype": "new", "q": "Can brittle ice survive your heavy footsteps?", "vid": "rHLanNXDFAk", "ts": 1792546908},
  {"key": "Warden", "arts": ["Warden"], "qtype": "howmany", "q": "How many sonic booms destroy your Netherite armor?", "vid": "clr3HPyTj1U", "ts": 1792565365},
  {"key": "Sleeping", "arts": ["Sleeping"], "qtype": "myth", "q": "A red bed: does sleeping speed up crops?", "vid": "YSnCv6zOSTs", "ts": 1792569220},
- {"key": "Snow Golem", "arts": ["Snow Golem"], "qtype": "what_if", "q": "What happens if you throw a Splash Potion of Fire Resistance on a Snow Golem in the Nether?", "vid": "yp6Y-2ypyag", "ts": 1792626235}
+ {"key": "Snow Golem", "arts": ["Snow Golem"], "qtype": "what_if", "q": "What happens if you throw a Splash Potion of Fire Resistance on a Snow Golem in the Nether?", "vid": "yp6Y-2ypyag", "ts": 1792626235},
+ {"key": "Java Edition 26.4", "arts": ["Java Edition 26.4"], "qtype": "new", "q": "Ice balls in 26.4: are they actually useful?", "vid": "LxH-nDyX098", "ts": 1792630009}
 ],
 "clips": {
  "clip000.mp4": {"w": 1280, "h": 720, "d": 15.0, "br": 0.382, "mo": 0.135, "tags": ["build", "forest"], "ok": true, "tagged": true},
