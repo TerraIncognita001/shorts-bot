@@ -203,26 +203,46 @@ def text_w(txt, size, kind="anton"):
     return font(kind, size).getlength(txt)
 
 
-def split_lines(words, max_w, sizes, max_lines=2):
+def split_lines(words, max_w, sizes, max_lines=4, max_words=3):
+    """Fit words into lines: max `max_words` per line, never wider than max_w."""
     n = len(words)
+    if n == 0:
+        return sizes[-1], []
     for size in sizes:
         sp = size * 0.24
         ws = [text_w(w, size) for w in words]
+        if max(ws) > max_w:
+            continue
         lines, cur, cur_w = [], [], 0
         for i, w in enumerate(ws):
-            if cur and cur_w + sp + w > max_w:
+            need = w + (sp if cur else 0)
+            # hard limit: never more than max_words on one line
+            if cur and (len(cur) >= max_words or cur_w + need > max_w):
                 lines.append(cur)
                 cur, cur_w = [], 0
+                need = w
             cur.append(i)
-            cur_w += w + (sp if len(cur) > 1 else 0)
+            cur_w += need
         if cur:
             lines.append(cur)
-        if len(lines) <= max_lines and all(sum(ws[i] for i in ln) + sp * (len(ln)-1) <= max_w * 1.02 for ln in lines):
+        if len(lines) <= max_lines:
             return size, lines
-    return sizes[-1], [[i] for i in range(n)]
+    # last resort: smaller size + groups of max_words
+    size = sizes[-1]
+    longest = max(text_w(w, size) for w in words) if words else 0
+    if longest > max_w and longest > 0:
+        size = max(40, int(size * max_w / longest))
+    lines = [list(range(i, min(i + max_words, n))) for i in range(0, n, max_words)]
+    return size, lines
+
+
+# Safe margins so text never gets cropped on 9:16 (1080x1920)
+SAFE_X = 36
+SAFE_Y = 48
 
 
 def blit(base, tile, cx, cy, scale=1.0, angle=0.0, alpha=1.0):
+    """Paste tile centered at (cx, cy), clamped so it stays inside the safe 9:16 frame."""
     if tile is None or alpha <= 0.01 or scale <= 0.01:
         return
     t = tile
@@ -234,7 +254,20 @@ def blit(base, tile, cx, cy, scale=1.0, angle=0.0, alpha=1.0):
     if alpha < 0.99:
         t = t.copy()
         t.putalpha(t.getchannel("A").point(lambda v: int(v * alpha)))
-    base.paste(t, (int(cx - t.width / 2), int(cy - t.height / 2)), t)
+    # Clamp so the whole tile stays inside the frame with safe margins
+    half_w, half_h = t.width / 2, t.height / 2
+    cx = max(SAFE_X + half_w, min(CW - SAFE_X - half_w, cx))
+    cy = max(SAFE_Y + half_h, min(CH - SAFE_Y - half_h, cy))
+    # If tile is still wider/taller than safe area, shrink it
+    max_w = CW - 2 * SAFE_X
+    max_h = CH - 2 * SAFE_Y
+    if t.width > max_w or t.height > max_h:
+        s = min(max_w / t.width, max_h / t.height)
+        t = t.resize((max(1, int(t.width * s)), max(1, int(t.height * s))), Image.BILINEAR)
+        half_w, half_h = t.width / 2, t.height / 2
+        cx = max(SAFE_X + half_w, min(CW - SAFE_X - half_w, cx))
+        cy = max(SAFE_Y + half_h, min(CH - SAFE_Y - half_h, cy))
+    base.paste(t, (int(cx - half_w), int(cy - half_h)), t)
 
 
 def make_sticker(img, height, outline=14):
@@ -364,32 +397,36 @@ class ShotReader:
 
 
 def kinetic_state(t, t0, t1, style="slam"):
+    """Return (scale, alpha, angle, dx, dy). Scales are capped so text never overflows 9:16."""
     u = t - t0
     life = t1 - t0
     if u < 0 or u > life + 0.12:
         return 0.0, 0.0, 0.0, 0.0, 0.0
     if style == "slam":
         if u < 0.16:
-            s = 0.25 + 0.75 * ease_out_back(u / 0.16, 2.1)
+            # mild overshoot only (max ~1.08)
+            s = 0.35 + 0.65 * ease_out_back(u / 0.16, 1.35)
             a = clamp(u / 0.06)
-            ang = (1 - ease_out_cubic(u / 0.16)) * 7
-            return s, a, ang, 0, 0
+            ang = (1 - ease_out_cubic(u / 0.16)) * 5
+            return min(s, 1.12), a, ang, 0, 0
         if u > life - 0.1:
             return 1.0, clamp((life - u) / 0.1), 0, 0, 0
-        return 1.0 + 0.025 * math.sin(u * 5.5), 1.0, 0, 0, 3 * math.sin(u * 3)
+        return 1.0 + 0.02 * math.sin(u * 5.5), 1.0, 0, 0, 2 * math.sin(u * 3)
     if style == "zoom":
-        if u < 0.2:
-            s = 1.7 - 0.7 * ease_out_cubic(u / 0.2)
-            a = clamp(u / 0.06)
+        if u < 0.18:
+            # start slightly large, settle to 1.0 — max scale 1.22
+            s = 1.22 - 0.22 * ease_out_cubic(u / 0.18)
+            a = clamp(u / 0.05)
             return s, a, 0, 0, 0
         if u > life - 0.08:
             return 1.0, clamp((life - u) / 0.08), 0, 0, 0
         return 1.0, 1.0, 0, 0, 0
     if style == "slide":
         if u < 0.14:
-            s = 0.9 + 0.1 * ease_out_cubic(u / 0.14)
+            s = 0.92 + 0.08 * ease_out_cubic(u / 0.14)
             a = clamp(u / 0.05)
-            return s, a, 0, (1 - ease_out_cubic(u / 0.14)) * 160, 0
+            # small slide so text stays on screen after clamp
+            return s, a, 0, (1 - ease_out_cubic(u / 0.14)) * 70, 0
         if u > life - 0.08:
             return 1.0, clamp((life - u) / 0.08), 0, 0, 0
         return 1.0, 1.0, 0, 0, 0
@@ -1123,19 +1160,29 @@ def build_plan(s, qtype, topic, voice, pics, lib, case_no):
     sfx = []
     voice_parts = []
 
-    # HOOK text full screen from 0
+    # Safe content width (leaves room for stroke + kinetic scale up to ~1.12)
+    SAFE_W = 900
+
+    # HOOK text — top third of screen, never overflows
     hook_txt = plain(s["hook"]).upper()
-    size, lines = split_lines(hook_txt.split(), 960, [200, 175, 150, 125], max_lines=2)
-    y0 = 360 - (len(lines) - 1) * size * 0.55
+    size, lines = split_lines(hook_txt.split(), SAFE_W, [170, 150, 130, 110, 95], max_lines=3, max_words=3)
+    # vertical placement: keep block well inside safe area
+    line_h = size * 1.08
+    block_h = line_h * len(lines)
+    y0 = 320 - block_h / 2 + line_h / 2
+    y0 = max(SAFE_Y + size * 0.6, min(y0, 520))
     marked = parse_marked(s["hook"])
     for li, idxs in enumerate(lines):
         row = " ".join(hook_txt.split()[i] for i in idxs)
+        # final safety: shrink size if this single row is still too wide
+        while text_w(row, size) > SAFE_W and size > 70:
+            size -= 4
         color = RED if any(i < len(marked) and marked[i][1] == "r" for i in idxs) else GOLD
         texts.append({"t0": 0.0, "t1": 2.2, "txt": row, "size": size, "color": color,
-                      "x": 540, "y": y0 + li * size * 1.05, "style": "slam"})
+                      "x": 540, "y": y0 + li * line_h, "style": "slam"})
     sfx.append((0.01, "boom", 1.15))
     fx.append({"t": 0.0, "kind": "flash", "amp": 0.6})
-    fx.append({"t": 0.04, "kind": "shake", "amp": 16})
+    fx.append({"t": 0.04, "kind": "shake", "amp": 14})
 
     t = 0.3
     for L in voice:
@@ -1144,28 +1191,37 @@ def build_plan(s, qtype, topic, voice, pics, lib, case_no):
         voice_parts.append((t, L["audio"]))
         words = plain(L["text"]).upper().split()
         if words:
-            size2, _ = split_lines(words, 880, [95, 85, 75, 65], max_lines=2)
-            texts.append({"t0": t, "t1": L["t1"] + 0.3, "txt": " ".join(words), "size": size2, "color": WHITE,
-                          "x": 540, "y": 1380, "style": "slide"})
+            size2, line_idxs = split_lines(words, SAFE_W - 40, [88, 78, 68, 58], max_lines=3, max_words=3)
+            # multi-line captions: stack them
+            for li, idxs in enumerate(line_idxs):
+                row = " ".join(words[i] for i in idxs)
+                while text_w(row, size2) > SAFE_W - 40 and size2 > 48:
+                    size2 -= 3
+                texts.append({"t0": t, "t1": L["t1"] + 0.3, "txt": row, "size": size2, "color": WHITE,
+                              "x": 540, "y": 1280 + li * size2 * 1.1, "style": "slide"})
         sfx.append((t - 0.015, "whoosh", 0.5))
         t = L["t1"] + 0.15
 
+    # PAYOFF — auto-size so it always fits
     payoff = s["payoff"] or "IT WORKS"
-    texts.append({"t0": t, "t1": t + 1.5, "txt": payoff, "size": 220, "color": GOLD,
-                  "x": 540, "y": 880, "style": "zoom"})
+    p_size = 190
+    while text_w(payoff, p_size) > SAFE_W and p_size > 80:
+        p_size -= 6
+    texts.append({"t0": t, "t1": t + 1.5, "txt": payoff, "size": p_size, "color": GOLD,
+                  "x": 540, "y": 900, "style": "zoom"})
     sfx.append((t - 0.12, "riser", 0.85))
     sfx.append((t, "slam", 1.05))
     sfx.append((t + 0.04, "chime", 0.75))
     fx.append({"t": t, "kind": "flash", "amp": 0.95})
-    fx.append({"t": t, "kind": "shake", "amp": 20})
+    fx.append({"t": t, "kind": "shake", "amp": 16})
 
     total = t + 1.55
 
     if pics and topic["articles"]:
         p = pics.get(topic["articles"][0])
         if p:
-            tile = fit_tile(make_sticker(Image.open(p), 400), 740, 500)
-            stickers.append({"t0": 0.7, "t1": total - 0.25, "tile": tile, "x": 540, "y": 760, "wiggle": True})
+            tile = fit_tile(make_sticker(Image.open(p), 360), 680, 440)
+            stickers.append({"t0": 0.7, "t1": total - 0.25, "tile": tile, "x": 540, "y": 720, "wiggle": True})
 
     shots = []
     n_shots = max(4, int(total / 1.05))
