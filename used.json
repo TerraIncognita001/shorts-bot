@@ -83,7 +83,8 @@
  {"key": "Snow Golem", "arts": ["Snow Golem"], "qtype": "what_if", "q": "What happens if you throw a Splash Potion of Fire Resistance on a Snow Golem in the Nether?", "vid": "yp6Y-2ypyag", "ts": 1792626235},
  {"key": "Java Edition 26.4", "arts": ["Java Edition 26.4"], "qtype": "new", "q": "Ice balls in 26.4: are they actually useful?", "vid": "LxH-nDyX098", "ts": 1792630009},
  {"key": "Cactus", "arts": ["Cactus"], "qtype": "myth", "q": "Can a Cactus really destroy fireproof Netherite?", "vid": "iCwrKFWGQZk", "ts": 1792633262},
- {"key": "Shield", "arts": ["Shield"], "qtype": "secret", "q": "Arrows shoot straight through a fully raised shield!", "vid": "LYsFjAdHpDY", "ts": 1792634185}
+ {"key": "Shield", "arts": ["Shield"], "qtype": "secret", "q": "Arrows shoot straight through a fully raised shield!", "vid": "LYsFjAdHpDY", "ts": 1792634185},
+ {"key": "Mace", "arts": ["Mace"], "qtype": "combat", "q": "ONE-SHOT MAX NETHERITE with ZERO fall damage!", "vid": "AXb6L6W51EE", "ts": 1792712318}
 ],
 "clips": {
  "clip000.mp4": {"w": 1280, "h": 720, "d": 15.0, "br": 0.382, "mo": 0.135, "tags": ["build", "forest"], "ok": true, "tagged": true},
