@@ -89,7 +89,8 @@
  {"key": "Hopper", "arts": ["Hopper"], "qtype": "glitch", "q": "HOPPERS SUCK ITEMS DIRECTLY FROM THE SPACE ABOVE!", "vid": "H0HWFrSy__8", "ts": 1792738099},
  {"key": "Allay", "arts": ["Allay"], "qtype": "farm", "q": "UNSTACKABLE ITEM SORTER WITH ONE ALLAY!", "vid": "Hvh9xIXr3OY", "ts": 1792798557},
  {"key": "Sculk Sensor", "arts": ["Sculk Sensor"], "qtype": "build", "q": "Build an INVISIBLE secret door that opens when you EAT!", "vid": "hRAdpTyQdwM", "ts": 1792803239},
- {"key": "Piglin", "arts": ["Piglin"], "qtype": "secret", "q": "STOP HOSTILE PIGLINS WITH A GOLD INGOT!", "vid": "p8gDBx-0jgc", "ts": 1792807277}
+ {"key": "Piglin", "arts": ["Piglin"], "qtype": "secret", "q": "STOP HOSTILE PIGLINS WITH A GOLD INGOT!", "vid": "p8gDBx-0jgc", "ts": 1792807277},
+ {"key": "Enderman", "arts": ["Enderman"], "qtype": "farm", "q": "FARM INFINITE XP using a single Endermite!", "vid": "TacvSFS9sfA", "ts": 1792824670}
 ],
 "clips": {
  "clip000.mp4": {"w": 1280, "h": 720, "d": 15.0, "br": 0.382, "mo": 0.135, "tags": ["build", "forest"], "ok": true, "tagged": true},
