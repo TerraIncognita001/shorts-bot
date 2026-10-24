@@ -87,7 +87,8 @@
  {"key": "Mace", "arts": ["Mace"], "qtype": "combat", "q": "ONE-SHOT MAX NETHERITE with ZERO fall damage!", "vid": "AXb6L6W51EE", "ts": 1792712318},
  {"key": "Java Edition 26.4", "arts": ["Java Edition 26.4"], "qtype": "update", "q": "YOU CAN MINE ICE WITHOUT SILK TOUCH NOW!", "vid": "4SqIfvueT-c", "ts": 1792720090},
  {"key": "Hopper", "arts": ["Hopper"], "qtype": "glitch", "q": "HOPPERS SUCK ITEMS DIRECTLY FROM THE SPACE ABOVE!", "vid": "H0HWFrSy__8", "ts": 1792738099},
- {"key": "Allay", "arts": ["Allay"], "qtype": "farm", "q": "UNSTACKABLE ITEM SORTER WITH ONE ALLAY!", "vid": "Hvh9xIXr3OY", "ts": 1792798557}
+ {"key": "Allay", "arts": ["Allay"], "qtype": "farm", "q": "UNSTACKABLE ITEM SORTER WITH ONE ALLAY!", "vid": "Hvh9xIXr3OY", "ts": 1792798557},
+ {"key": "Sculk Sensor", "arts": ["Sculk Sensor"], "qtype": "build", "q": "Build an INVISIBLE secret door that opens when you EAT!", "vid": "hRAdpTyQdwM", "ts": 1792803239}
 ],
 "clips": {
  "clip000.mp4": {"w": 1280, "h": 720, "d": 15.0, "br": 0.382, "mo": 0.135, "tags": ["build", "forest"], "ok": true, "tagged": true},
