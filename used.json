@@ -93,7 +93,8 @@
  {"key": "Enderman", "arts": ["Enderman"], "qtype": "farm", "q": "FARM INFINITE XP using a single Endermite!", "vid": "TacvSFS9sfA", "ts": 1792824670},
  {"key": "Java Edition 26.4", "arts": ["Java Edition 26.4"], "qtype": "update", "q": "YOU CAN FREEZE WATER WITH A SINGLE BLOCK!", "vid": "PdsTFBw6MZ0", "ts": 1792827751},
  {"key": "End portal", "arts": ["End portal"], "qtype": "glitch", "q": "FALLING BLOCKS NEVER DUPLICATE IN AN END PORTAL!", "vid": "2Kw6oxLqEws", "ts": 1792884784},
- {"key": "Honey Block", "arts": ["Honey Block"], "qtype": "build", "q": "SECRET ROOM THROUGH A SEAMLESS HONEY WALL!", "vid": "TCCNZZd7seA", "ts": 1792889305}
+ {"key": "Honey Block", "arts": ["Honey Block"], "qtype": "build", "q": "SECRET ROOM THROUGH A SEAMLESS HONEY WALL!", "vid": "TCCNZZd7seA", "ts": 1792889305},
+ {"key": "Axolotl", "arts": ["Axolotl"], "qtype": "combat", "q": "INSTANTLY CLEAR MINING FATIGUE WITH AN AXOLOTL!", "vid": "G0kmxq2ILK4", "ts": 1792892187}
 ],
 "clips": {
  "clip000.mp4": {"w": 1280, "h": 720, "d": 15.0, "br": 0.382, "mo": 0.135, "tags": ["build", "forest"], "ok": true, "tagged": true},
