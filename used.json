@@ -95,7 +95,8 @@
  {"key": "End portal", "arts": ["End portal"], "qtype": "glitch", "q": "FALLING BLOCKS NEVER DUPLICATE IN AN END PORTAL!", "vid": "2Kw6oxLqEws", "ts": 1792884784},
  {"key": "Honey Block", "arts": ["Honey Block"], "qtype": "build", "q": "SECRET ROOM THROUGH A SEAMLESS HONEY WALL!", "vid": "TCCNZZd7seA", "ts": 1792889305},
  {"key": "Axolotl", "arts": ["Axolotl"], "qtype": "combat", "q": "INSTANTLY CLEAR MINING FATIGUE WITH AN AXOLOTL!", "vid": "G0kmxq2ILK4", "ts": 1792892187},
- {"key": "Observer", "arts": ["Observer"], "qtype": "build", "q": "BUILD AN INVISIBLE TRIGGER WITH ONE OBSERVER!", "vid": "YhN8aqIMy9Q", "ts": 1792910811}
+ {"key": "Observer", "arts": ["Observer"], "qtype": "build", "q": "BUILD AN INVISIBLE TRIGGER WITH ONE OBSERVER!", "vid": "YhN8aqIMy9Q", "ts": 1792910811},
+ {"key": "Totem of Undying", "arts": ["Totem of Undying"], "qtype": "secret", "q": "A FOX CAN REVIVE ITSELF FROM DEATH!", "vid": "1TaKSGUSZ68", "ts": 1792914492}
 ],
 "clips": {
  "clip000.mp4": {"w": 1280, "h": 720, "d": 15.0, "br": 0.382, "mo": 0.135, "tags": ["build", "forest"], "ok": true, "tagged": true},
