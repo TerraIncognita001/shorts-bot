@@ -100,7 +100,8 @@
  {"key": "Java Edition 26.4", "arts": ["Java Edition 26.4"], "qtype": "update", "q": "Turn a HUSK directly into a FROSTBITE!", "vid": "RWntFrAID2s", "ts": 1792971032},
  {"key": "Breeze", "arts": ["Breeze"], "qtype": "farm", "q": "BUILD AN AUTOMATIC REDSTONE ENGINE WITH A BREEZE!", "vid": "uVmF1UgVmKM", "ts": 1792976360},
  {"key": "Bane of Arthropods", "arts": ["Bane of Arthropods"], "qtype": "glitch", "q": "BANE OF ARTHROPODS SECRETLY APPLIES SLOWNESS IV!", "vid": "9oDCGznJrCw", "ts": 1792980543},
- {"key": "Armadillo", "arts": ["Armadillo"], "qtype": "combat", "q": "YOUR PET WOLF CAN ABSORB A POINT-BLANK EXPLOSION!", "vid": "4JB8xAbsyTU", "ts": 1792997619}
+ {"key": "Armadillo", "arts": ["Armadillo"], "qtype": "combat", "q": "YOUR PET WOLF CAN ABSORB A POINT-BLANK EXPLOSION!", "vid": "4JB8xAbsyTU", "ts": 1792997619},
+ {"key": "Piston", "arts": ["Piston"], "qtype": "build", "q": "Tilling dirt creates an INVISIBLE secret door TRIGGER!", "vid": "Qcy2fjs9Vr4", "ts": 1793001741}
 ],
 "clips": {
  "clip000.mp4": {"w": 1280, "h": 720, "d": 15.0, "br": 0.382, "mo": 0.135, "tags": ["build", "forest"], "ok": true, "tagged": true},
