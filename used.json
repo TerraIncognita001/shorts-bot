@@ -98,7 +98,8 @@
  {"key": "Observer", "arts": ["Observer"], "qtype": "build", "q": "BUILD AN INVISIBLE TRIGGER WITH ONE OBSERVER!", "vid": "YhN8aqIMy9Q", "ts": 1792910811},
  {"key": "Totem of Undying", "arts": ["Totem of Undying"], "qtype": "secret", "q": "A FOX CAN REVIVE ITSELF FROM DEATH!", "vid": "1TaKSGUSZ68", "ts": 1792914492},
  {"key": "Java Edition 26.4", "arts": ["Java Edition 26.4"], "qtype": "update", "q": "Turn a HUSK directly into a FROSTBITE!", "vid": "RWntFrAID2s", "ts": 1792971032},
- {"key": "Breeze", "arts": ["Breeze"], "qtype": "farm", "q": "BUILD AN AUTOMATIC REDSTONE ENGINE WITH A BREEZE!", "vid": "uVmF1UgVmKM", "ts": 1792976360}
+ {"key": "Breeze", "arts": ["Breeze"], "qtype": "farm", "q": "BUILD AN AUTOMATIC REDSTONE ENGINE WITH A BREEZE!", "vid": "uVmF1UgVmKM", "ts": 1792976360},
+ {"key": "Bane of Arthropods", "arts": ["Bane of Arthropods"], "qtype": "glitch", "q": "BANE OF ARTHROPODS SECRETLY APPLIES SLOWNESS IV!", "vid": "9oDCGznJrCw", "ts": 1792980543}
 ],
 "clips": {
  "clip000.mp4": {"w": 1280, "h": 720, "d": 15.0, "br": 0.382, "mo": 0.135, "tags": ["build", "forest"], "ok": true, "tagged": true},
