@@ -104,7 +104,8 @@
  {"key": "Piston", "arts": ["Piston"], "qtype": "build", "q": "Tilling dirt creates an INVISIBLE secret door TRIGGER!", "vid": "Qcy2fjs9Vr4", "ts": 1793001741},
  {"key": "Slime Block", "arts": ["Slime Block"], "qtype": "farm", "q": "BUILD AN AUTOMATIC FLYING ENGINE WITH ONE SLIME BLOCK!", "vid": "bE0PWbcyOkg", "ts": 1793062272},
  {"key": "Pointed Dripstone", "arts": ["Pointed Dripstone"], "qtype": "glitch", "q": "POINTED DRIPSTONE MULTIPLIES FALL DAMAGE TO INSTANTLY KILL MOBS!", "vid": "OpPXBvhdMIs", "ts": 1793066077},
- {"key": "Nether Portal", "arts": ["Nether Portal"], "qtype": "build", "q": "THIS SECRET NETHER PORTAL IS COMPLETELY HIDDEN!", "vid": "qKmMXeSZIOs", "ts": 1793083747}
+ {"key": "Nether Portal", "arts": ["Nether Portal"], "qtype": "build", "q": "THIS SECRET NETHER PORTAL IS COMPLETELY HIDDEN!", "vid": "qKmMXeSZIOs", "ts": 1793083747},
+ {"key": "Mushroom Fields", "arts": ["Mushroom Fields"], "qtype": "glitch", "q": "HOSTILE MONSTERS STILL SPAWN IN MUSHROOM FIELDS!", "vid": "rVs6kuUVDxk", "ts": 1793088047}
 ],
 "clips": {
  "clip000.mp4": {"w": 1280, "h": 720, "d": 15.0, "br": 0.382, "mo": 0.135, "tags": ["build", "forest"], "ok": true, "tagged": true},
