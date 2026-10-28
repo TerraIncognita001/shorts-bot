@@ -108,7 +108,8 @@
  {"key": "Mushroom Fields", "arts": ["Mushroom Fields"], "qtype": "glitch", "q": "HOSTILE MONSTERS STILL SPAWN IN MUSHROOM FIELDS!", "vid": "rVs6kuUVDxk", "ts": 1793088047},
  {"key": "Bamboo", "arts": ["Bamboo"], "qtype": "farm", "q": "Get INFINITE FUEL for your furnaces with ZERO COST!", "vid": "65N6wWvF_J8", "ts": 1793144218},
  {"key": "Ghast", "arts": ["Ghast"], "qtype": "combat", "q": "You can INSTANTLY KILL Ghasts with their own FIREBALLS!", "vid": "vqyzkIBP0G8", "ts": 1793149174},
- {"key": "Creaking Heart", "arts": ["Creaking Heart"], "qtype": "build", "q": "BUILD A SECRET DOOR THAT UNLOCKS ONLY AT NIGHT!", "vid": "_5SsHzRlPnM", "ts": 1793152721}
+ {"key": "Creaking Heart", "arts": ["Creaking Heart"], "qtype": "build", "q": "BUILD A SECRET DOOR THAT UNLOCKS ONLY AT NIGHT!", "vid": "_5SsHzRlPnM", "ts": 1793152721},
+ {"key": "Cauldron", "arts": ["Cauldron"], "qtype": "combat", "q": "NEVER USE A CAULDRON FOR RIPTIDE ESCAPES!", "vid": "R2O26KOOF6k", "ts": 1793170774}
 ],
 "clips": {
  "clip000.mp4": {"w": 1280, "h": 720, "d": 15.0, "br": 0.382, "mo": 0.135, "tags": ["build", "forest"], "ok": true, "tagged": true},
