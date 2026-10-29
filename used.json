@@ -112,7 +112,8 @@
  {"key": "Cauldron", "arts": ["Cauldron"], "qtype": "combat", "q": "NEVER USE A CAULDRON FOR RIPTIDE ESCAPES!", "vid": "R2O26KOOF6k", "ts": 1793170774},
  {"key": "Wither", "arts": ["Wither"], "qtype": "farm", "q": "Build an AUTOMATIC block breaker using a trapped WITHER!", "vid": "5rW5rZ5fK5s", "ts": 1793174846},
  {"key": "Trident", "arts": ["Trident"], "qtype": "secret", "q": "THIS PERPETUAL TRIDENT TRAP NEVER BREAKS!", "vid": "_xVgt7i8F6M", "ts": 1793231121},
- {"key": "Creeper", "arts": ["Creeper"], "qtype": "combat", "q": "SURVIVE A CREEPER EXPLOSION WITH ZERO SHIELD DAMAGE!", "vid": "hkBuqIJZvbM", "ts": 1793235641}
+ {"key": "Creeper", "arts": ["Creeper"], "qtype": "combat", "q": "SURVIVE A CREEPER EXPLOSION WITH ZERO SHIELD DAMAGE!", "vid": "hkBuqIJZvbM", "ts": 1793235641},
+ {"key": "Blaze", "arts": ["Blaze"], "qtype": "glitch", "q": "SNOWBALLS ARE THE BEST WEAPON TO FARM BLAZES!", "vid": "juXP7myslmk", "ts": 1793239536}
 ],
 "clips": {
  "clip000.mp4": {"w": 1280, "h": 720, "d": 15.0, "br": 0.382, "mo": 0.135, "tags": ["build", "forest"], "ok": true, "tagged": true},
