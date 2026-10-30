@@ -116,7 +116,8 @@
  {"key": "Blaze", "arts": ["Blaze"], "qtype": "glitch", "q": "SNOWBALLS ARE THE BEST WEAPON TO FARM BLAZES!", "vid": "juXP7myslmk", "ts": 1793239536},
  {"key": "Woodland Mansion", "arts": ["Woodland Mansion"], "qtype": "secret", "q": "TURN WOODLAND VINDICATORS INTO AN AUTOMATIC MOB KILLER!", "vid": "bIUn-2GPsIU", "ts": 1793262049},
  {"key": "Beacon", "arts": ["Beacon"], "qtype": "combat", "q": "UNLOCK MAX BEACON POWER WITH THIS PYRAMID!", "vid": "KM5-vAl_ZrE", "ts": 1793317290},
- {"key": "Elytra", "arts": ["Elytra"], "qtype": "build", "q": "INSTANT ELYTRA LAUNCH WITH ZERO FIREWORKS!", "vid": "je5znD_dpA4", "ts": 1793322182}
+ {"key": "Elytra", "arts": ["Elytra"], "qtype": "build", "q": "INSTANT ELYTRA LAUNCH WITH ZERO FIREWORKS!", "vid": "je5znD_dpA4", "ts": 1793322182},
+ {"key": "Iron Golem", "arts": ["Iron Golem"], "qtype": "combat", "q": "Make your IRON GOLEM practically INVINCIBLE in combat!", "vid": "L4mFfLMD520", "ts": 1793325908}
 ],
 "clips": {
  "clip000.mp4": {"w": 1280, "h": 720, "d": 15.0, "br": 0.382, "mo": 0.135, "tags": ["build", "forest"], "ok": true, "tagged": true},
