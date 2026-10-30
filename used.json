@@ -117,7 +117,8 @@
  {"key": "Woodland Mansion", "arts": ["Woodland Mansion"], "qtype": "secret", "q": "TURN WOODLAND VINDICATORS INTO AN AUTOMATIC MOB KILLER!", "vid": "bIUn-2GPsIU", "ts": 1793262049},
  {"key": "Beacon", "arts": ["Beacon"], "qtype": "combat", "q": "UNLOCK MAX BEACON POWER WITH THIS PYRAMID!", "vid": "KM5-vAl_ZrE", "ts": 1793317290},
  {"key": "Elytra", "arts": ["Elytra"], "qtype": "build", "q": "INSTANT ELYTRA LAUNCH WITH ZERO FIREWORKS!", "vid": "je5znD_dpA4", "ts": 1793322182},
- {"key": "Iron Golem", "arts": ["Iron Golem"], "qtype": "combat", "q": "Make your IRON GOLEM practically INVINCIBLE in combat!", "vid": "L4mFfLMD520", "ts": 1793325908}
+ {"key": "Iron Golem", "arts": ["Iron Golem"], "qtype": "combat", "q": "Make your IRON GOLEM practically INVINCIBLE in combat!", "vid": "L4mFfLMD520", "ts": 1793325908},
+ {"key": "Java Edition 26.4", "arts": ["Java Edition 26.4"], "qtype": "update", "q": "BUILD A PITFALL TRAP WITH BLUE ICE!", "vid": "lekhaKhhAbA", "ts": 1793343535}
 ],
 "clips": {
  "clip000.mp4": {"w": 1280, "h": 720, "d": 15.0, "br": 0.382, "mo": 0.135, "tags": ["build", "forest"], "ok": true, "tagged": true},
