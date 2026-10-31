@@ -122,7 +122,8 @@
  {"key": "Bucket of mob", "arts": ["Bucket of mob"], "qtype": "combat", "q": "Drop a PUFFERFISH into combat with one BUCKET!", "vid": "lE1rSxeMcwI", "ts": 1793347631},
  {"key": "Potion of Night Vision", "arts": ["Potion of Night Vision"], "qtype": "glitch", "q": "NIGHT VISION CANNOT OVERRIDE THE DARKNESS EFFECT!", "vid": "o7gwSm9SIXM", "ts": 1793408781},
  {"key": "Minecart", "arts": ["Minecart"], "qtype": "secret", "q": "STACK THREE MINECARTS FOR AN OFF-RAIL TRAIN!", "vid": "uI5Kcino3Nw", "ts": 1793412192},
- {"key": "Deep Dark", "arts": ["Deep Dark"], "qtype": "secret", "q": "TRIGGERING JUST FOUR SHRIEKERS SUMMONS THE WARDEN!", "vid": "p3i7uj2jQTY", "ts": 1793429946}
+ {"key": "Deep Dark", "arts": ["Deep Dark"], "qtype": "secret", "q": "TRIGGERING JUST FOUR SHRIEKERS SUMMONS THE WARDEN!", "vid": "p3i7uj2jQTY", "ts": 1793429946},
+ {"key": "Netherite", "arts": ["Netherite"], "qtype": "glitch", "q": "DROPPED NETHERITE GEAR CAN STILL BE COMPLETELY DESTROYED!", "vid": "YdyVCTJOODk", "ts": 1793433478}
 ],
 "clips": {
  "clip000.mp4": {"w": 1280, "h": 720, "d": 15.0, "br": 0.382, "mo": 0.135, "tags": ["build", "forest"], "ok": true, "tagged": true},
