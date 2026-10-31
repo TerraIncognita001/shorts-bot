@@ -120,7 +120,8 @@
  {"key": "Iron Golem", "arts": ["Iron Golem"], "qtype": "combat", "q": "Make your IRON GOLEM practically INVINCIBLE in combat!", "vid": "L4mFfLMD520", "ts": 1793325908},
  {"key": "Java Edition 26.4", "arts": ["Java Edition 26.4"], "qtype": "update", "q": "BUILD A PITFALL TRAP WITH BLUE ICE!", "vid": "lekhaKhhAbA", "ts": 1793343535},
  {"key": "Bucket of mob", "arts": ["Bucket of mob"], "qtype": "combat", "q": "Drop a PUFFERFISH into combat with one BUCKET!", "vid": "lE1rSxeMcwI", "ts": 1793347631},
- {"key": "Potion of Night Vision", "arts": ["Potion of Night Vision"], "qtype": "glitch", "q": "NIGHT VISION CANNOT OVERRIDE THE DARKNESS EFFECT!", "vid": "o7gwSm9SIXM", "ts": 1793408781}
+ {"key": "Potion of Night Vision", "arts": ["Potion of Night Vision"], "qtype": "glitch", "q": "NIGHT VISION CANNOT OVERRIDE THE DARKNESS EFFECT!", "vid": "o7gwSm9SIXM", "ts": 1793408781},
+ {"key": "Minecart", "arts": ["Minecart"], "qtype": "secret", "q": "STACK THREE MINECARTS FOR AN OFF-RAIL TRAIN!", "vid": "uI5Kcino3Nw", "ts": 1793412192}
 ],
 "clips": {
  "clip000.mp4": {"w": 1280, "h": 720, "d": 15.0, "br": 0.382, "mo": 0.135, "tags": ["build", "forest"], "ok": true, "tagged": true},
