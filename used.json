@@ -125,7 +125,8 @@
  {"key": "Deep Dark", "arts": ["Deep Dark"], "qtype": "secret", "q": "TRIGGERING JUST FOUR SHRIEKERS SUMMONS THE WARDEN!", "vid": "p3i7uj2jQTY", "ts": 1793429946},
  {"key": "Netherite", "arts": ["Netherite"], "qtype": "glitch", "q": "DROPPED NETHERITE GEAR CAN STILL BE COMPLETELY DESTROYED!", "vid": "YdyVCTJOODk", "ts": 1793433478},
  {"key": "Villager", "arts": ["Villager"], "qtype": "secret", "q": "YOUR VILLAGER CAN KILL ATTACKING ZOMBIES!", "vid": "3vPEq566xeQ", "ts": 1793490382},
- {"key": "Redstone Dust", "arts": ["Redstone Dust"], "qtype": "build", "q": "STOP YOUR REDSTONE SIGNALS FROM POWERING THE WRONG BLOCKS!", "vid": "d0fvoOXKAhQ", "ts": 1793495356}
+ {"key": "Redstone Dust", "arts": ["Redstone Dust"], "qtype": "build", "q": "STOP YOUR REDSTONE SIGNALS FROM POWERING THE WRONG BLOCKS!", "vid": "d0fvoOXKAhQ", "ts": 1793495356},
+ {"key": "Java Edition 26.4", "arts": ["Java Edition 26.4"], "qtype": "update", "q": "ICE BALLS DEAL REAL ATTACK DAMAGE WHEN THROWN!", "vid": "9Ti-EBHArRQ", "ts": 1793498815}
 ],
 "clips": {
  "clip000.mp4": {"w": 1280, "h": 720, "d": 15.0, "br": 0.382, "mo": 0.135, "tags": ["build", "forest"], "ok": true, "tagged": true},
