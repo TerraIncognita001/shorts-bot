@@ -128,7 +128,8 @@
  {"key": "Redstone Dust", "arts": ["Redstone Dust"], "qtype": "build", "q": "STOP YOUR REDSTONE SIGNALS FROM POWERING THE WRONG BLOCKS!", "vid": "d0fvoOXKAhQ", "ts": 1793495356},
  {"key": "Java Edition 26.4", "arts": ["Java Edition 26.4"], "qtype": "update", "q": "ICE BALLS DEAL REAL ATTACK DAMAGE WHEN THROWN!", "vid": "9Ti-EBHArRQ", "ts": 1793498815},
  {"key": "End portal", "arts": ["End portal"], "qtype": "glitch", "q": "ACTIVATING AN END PORTAL DESTROYS BEDROCK!", "vid": "giIZ3SYrJtQ", "ts": 1793516383},
- {"key": "Powder Snow Bucket", "arts": ["Powder Snow Bucket"], "qtype": "secret", "q": "You can MLG CLUTCH directly inside the Nether!", "vid": "b_VhuoVDQv4", "ts": 1793520374}
+ {"key": "Powder Snow Bucket", "arts": ["Powder Snow Bucket"], "qtype": "secret", "q": "You can MLG CLUTCH directly inside the Nether!", "vid": "b_VhuoVDQv4", "ts": 1793520374},
+ {"key": "Sculk Sensor", "arts": ["Sculk Sensor"], "qtype": "glitch", "q": "TURN SCULK SENSORS INTO PERFECT WIRELESS REDSTONE!", "vid": "5_OeKsUPvHI", "ts": 1793576662}
 ],
 "clips": {
  "clip000.mp4": {"w": 1280, "h": 720, "d": 15.0, "br": 0.382, "mo": 0.135, "tags": ["build", "forest"], "ok": true, "tagged": true},
