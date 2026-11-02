@@ -131,7 +131,8 @@
  {"key": "Powder Snow Bucket", "arts": ["Powder Snow Bucket"], "qtype": "secret", "q": "You can MLG CLUTCH directly inside the Nether!", "vid": "b_VhuoVDQv4", "ts": 1793520374},
  {"key": "Sculk Sensor", "arts": ["Sculk Sensor"], "qtype": "glitch", "q": "TURN SCULK SENSORS INTO PERFECT WIRELESS REDSTONE!", "vid": "5_OeKsUPvHI", "ts": 1793576662},
  {"key": "Hopper", "arts": ["Hopper"], "qtype": "glitch", "q": "HOPPERS CAN COLLECT ITEMS WITHOUT A MINECART!", "vid": "e6XmtGe47J0", "ts": 1793581491},
- {"key": "Allay", "arts": ["Allay"], "qtype": "build", "q": "SORT UNSTACKABLE ITEMS EASILY WITH ONE ALLAY!", "vid": "iVmgdh1pYrQ", "ts": 1793585374}
+ {"key": "Allay", "arts": ["Allay"], "qtype": "build", "q": "SORT UNSTACKABLE ITEMS EASILY WITH ONE ALLAY!", "vid": "iVmgdh1pYrQ", "ts": 1793585374},
+ {"key": "Piglin", "arts": ["Piglin"], "qtype": "farm", "q": "TRAP PIGLINS EASILY WITH A SOUL LANTERN!", "vid": "HPvmA2zcmNE", "ts": 1793662853}
 ],
 "clips": {
  "clip000.mp4": {"w": 1280, "h": 720, "d": 15.0, "br": 0.382, "mo": 0.135, "tags": ["build", "forest"], "ok": true, "tagged": true},
