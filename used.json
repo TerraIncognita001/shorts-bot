@@ -132,7 +132,8 @@
  {"key": "Sculk Sensor", "arts": ["Sculk Sensor"], "qtype": "glitch", "q": "TURN SCULK SENSORS INTO PERFECT WIRELESS REDSTONE!", "vid": "5_OeKsUPvHI", "ts": 1793576662},
  {"key": "Hopper", "arts": ["Hopper"], "qtype": "glitch", "q": "HOPPERS CAN COLLECT ITEMS WITHOUT A MINECART!", "vid": "e6XmtGe47J0", "ts": 1793581491},
  {"key": "Allay", "arts": ["Allay"], "qtype": "build", "q": "SORT UNSTACKABLE ITEMS EASILY WITH ONE ALLAY!", "vid": "iVmgdh1pYrQ", "ts": 1793585374},
- {"key": "Piglin", "arts": ["Piglin"], "qtype": "farm", "q": "TRAP PIGLINS EASILY WITH A SOUL LANTERN!", "vid": "HPvmA2zcmNE", "ts": 1793662853}
+ {"key": "Piglin", "arts": ["Piglin"], "qtype": "farm", "q": "TRAP PIGLINS EASILY WITH A SOUL LANTERN!", "vid": "HPvmA2zcmNE", "ts": 1793662853},
+ {"key": "Java Edition 26.4", "arts": ["Java Edition 26.4"], "qtype": "update", "q": "STOP ALL FREEZING DAMAGE WITH A PIECE OF LEATHER!", "vid": "aQXa2fgzcnk", "ts": 1793667811}
 ],
 "clips": {
  "clip000.mp4": {"w": 1280, "h": 720, "d": 15.0, "br": 0.382, "mo": 0.135, "tags": ["build", "forest"], "ok": true, "tagged": true},
