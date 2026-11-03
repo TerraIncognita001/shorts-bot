@@ -135,7 +135,8 @@
  {"key": "Piglin", "arts": ["Piglin"], "qtype": "farm", "q": "TRAP PIGLINS EASILY WITH A SOUL LANTERN!", "vid": "HPvmA2zcmNE", "ts": 1793662853},
  {"key": "Java Edition 26.4", "arts": ["Java Edition 26.4"], "qtype": "update", "q": "STOP ALL FREEZING DAMAGE WITH A PIECE OF LEATHER!", "vid": "aQXa2fgzcnk", "ts": 1793667811},
  {"key": "Java Edition 26.4", "arts": ["Java Edition 26.4"], "qtype": "update", "q": "YOU CAN FINALLY MINE ICE WITHOUT SILK TOUCH!", "vid": "iPGlH6s3dUg", "ts": 1793671522},
- {"key": "Honey Block", "arts": ["Honey Block"], "qtype": "build", "q": "YOU CAN WALK THROUGH SOLID WALL CORNERS IN MINECRAFT!", "vid": "ZnBPJQhd4i8", "ts": 1793690088}
+ {"key": "Honey Block", "arts": ["Honey Block"], "qtype": "build", "q": "YOU CAN WALK THROUGH SOLID WALL CORNERS IN MINECRAFT!", "vid": "ZnBPJQhd4i8", "ts": 1793690088},
+ {"key": "Copper Grate", "arts": ["Copper Grate"], "qtype": "build", "q": "BUILD AN INVISIBLE SECRET WATER ELEVATOR UNDER YOUR FLOOR!", "vid": "cVLbHaFufHU", "ts": 1793749446}
 ],
 "clips": {
  "clip000.mp4": {"w": 1280, "h": 720, "d": 15.0, "br": 0.382, "mo": 0.135, "tags": ["build", "forest"], "ok": true, "tagged": true},
