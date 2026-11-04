@@ -139,7 +139,8 @@
  {"key": "Copper Grate", "arts": ["Copper Grate"], "qtype": "build", "q": "BUILD AN INVISIBLE SECRET WATER ELEVATOR UNDER YOUR FLOOR!", "vid": "cVLbHaFufHU", "ts": 1793749446},
  {"key": "Armor Stand", "arts": ["Armor Stand"], "qtype": "build", "q": "OPEN SECRET CHESTS THROUGH SOLID WALLS!", "vid": "oncZtbfnzNo", "ts": 1793754241},
  {"key": "Observer", "arts": ["Observer"], "qtype": "farm", "q": "HARVEST CROPS THE EXACT MILLISECOND THEY GROW!", "vid": "_Fu3d5gvMN8", "ts": 1793758013},
- {"key": "Breeze", "arts": ["Breeze"], "qtype": "build", "q": "LAUNCH INTO YOUR BASE WITH A TRAPPED BREEZE!", "vid": "j4owh5Gxeis", "ts": 1793776867}
+ {"key": "Breeze", "arts": ["Breeze"], "qtype": "build", "q": "LAUNCH INTO YOUR BASE WITH A TRAPPED BREEZE!", "vid": "j4owh5Gxeis", "ts": 1793776867},
+ {"key": "Copper Trapdoor", "arts": ["Copper Trapdoor"], "qtype": "build", "q": "HIDE A SECRET BASE IN PLAIN SIGHT!", "vid": "cDdRtLQRAOo", "ts": 1793836170}
 ],
 "clips": {
  "clip000.mp4": {"w": 1280, "h": 720, "d": 15.0, "br": 0.382, "mo": 0.135, "tags": ["build", "forest"], "ok": true, "tagged": true},
