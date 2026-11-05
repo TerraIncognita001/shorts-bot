@@ -142,7 +142,8 @@
  {"key": "Breeze", "arts": ["Breeze"], "qtype": "build", "q": "LAUNCH INTO YOUR BASE WITH A TRAPPED BREEZE!", "vid": "j4owh5Gxeis", "ts": 1793776867},
  {"key": "Copper Trapdoor", "arts": ["Copper Trapdoor"], "qtype": "build", "q": "HIDE A SECRET BASE IN PLAIN SIGHT!", "vid": "cDdRtLQRAOo", "ts": 1793836170},
  {"key": "Golden Apple", "arts": ["Golden Apple"], "qtype": "build", "q": "UNLOCK HIDDEN REDSTONE LABS WITH ONE GOLDEN APPLE!", "vid": "dLwcU4c2c8c", "ts": 1793841577},
- {"key": "Mace", "arts": ["Mace"], "qtype": "combat", "q": "DEAL UNLIMITED DAMAGE MID-AIR WITH ONE MACE!", "vid": "lOOMHUp1rk8", "ts": 1793844840}
+ {"key": "Mace", "arts": ["Mace"], "qtype": "combat", "q": "DEAL UNLIMITED DAMAGE MID-AIR WITH ONE MACE!", "vid": "lOOMHUp1rk8", "ts": 1793844840},
+ {"key": "Slime Block", "arts": ["Slime Block"], "qtype": "build", "q": "ULTRA-COMPACT VERTICAL SECRET ELEVATOR WITH SLIME BLOCK!", "vid": "etI-CBMOJ9E", "ts": 1793863249}
 ],
 "clips": {
  "clip000.mp4": {"w": 1280, "h": 720, "d": 15.0, "br": 0.382, "mo": 0.135, "tags": ["build", "forest"], "ok": true, "tagged": true},
