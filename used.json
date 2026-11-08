@@ -148,7 +148,8 @@
  {"key": "Piston", "arts": ["Piston"], "qtype": "build", "q": "PUSH TWELVE FLOOR BLOCKS WITH ONE PISTON!", "vid": "TqV4OTyHvow", "ts": 1793946712},
  {"key": "Armadillo", "arts": ["Armadillo"], "qtype": "farm", "q": "FARM INFINITE ARMADILLO SCUTES IN SECONDS!", "vid": "BSDUgFquTi0", "ts": 1793977346},
  {"key": "Nether Portal", "arts": ["Nether Portal"], "qtype": "build", "q": "INSTANT NETHER PORTAL WALL!", "vid": "xwlQoTXZfCg", "ts": 1794020064},
- {"key": "Enderman", "arts": ["Enderman"], "qtype": "glitch", "q": "THROW WATER BOTTLES AT ENDERMEN WITHOUT AGGRO!", "vid": "9L27OwFdQ_w", "ts": 1794056101}
+ {"key": "Enderman", "arts": ["Enderman"], "qtype": "glitch", "q": "THROW WATER BOTTLES AT ENDERMEN WITHOUT AGGRO!", "vid": "9L27OwFdQ_w", "ts": 1794056101},
+ {"key": "Ocean Monument", "arts": ["Ocean Monument"], "qtype": "farm", "q": "FARM GUARDIANS ACROSS 3,364 BLOCKS EASILY!", "vid": "GtZNt4OV8FQ", "ts": 1794104906}
 ],
 "clips": {
  "clip000.mp4": {"w": 1280, "h": 720, "d": 15.0, "br": 0.382, "mo": 0.135, "tags": ["build", "forest"], "ok": true, "tagged": true},
