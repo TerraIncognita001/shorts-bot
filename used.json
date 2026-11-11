@@ -154,7 +154,8 @@
  {"key": "Java Edition 26.4", "arts": ["Java Edition 26.4"], "qtype": "update", "q": "WATER TURNS TO ICE INSTANTLY NEXT TO BLUE ICE!", "vid": "SEkkkhH7Z5U", "ts": 1794192273},
  {"key": "Wither", "arts": ["Wither"], "qtype": "farm", "q": "BUILD AN INFINITE BLOCK FARM USING A TRAPPED WITHER!", "vid": "_neOVLBJhlo", "ts": 1794240861},
  {"key": "String", "arts": ["String"], "qtype": "glitch", "q": "STOP mobs from trampling crops with STRING!", "vid": "QHo0SrF81qw", "ts": 1794285447},
- {"key": "Trident", "arts": ["Trident"], "qtype": "farm", "q": "THIS TRIDENT HACK GIVES YOU INFINITE LOOTING!", "vid": "YvQGxSR9DQQ", "ts": 1794322314}
+ {"key": "Trident", "arts": ["Trident"], "qtype": "farm", "q": "THIS TRIDENT HACK GIVES YOU INFINITE LOOTING!", "vid": "YvQGxSR9DQQ", "ts": 1794322314},
+ {"key": "Ancient City", "arts": ["Ancient City"], "qtype": "build", "q": "UNLOCK THE ANCIENT CITY PORTAL BUNKER BY JUST EATING!", "vid": "Weg57cMFJYM", "ts": 1794365809}
 ],
 "clips": {
  "clip000.mp4": {"w": 1280, "h": 720, "d": 15.0, "br": 0.382, "mo": 0.135, "tags": ["build", "forest"], "ok": true, "tagged": true},
