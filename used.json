@@ -159,7 +159,8 @@
  {"key": "Warden", "arts": ["Warden"], "qtype": "glitch", "q": "CURE WARDEN DARKNESS INSTANTLY WITH A MILK BUCKET?", "vid": "JmwAfQyMelE", "ts": 1794455823},
  {"key": "Ghast", "arts": ["Ghast"], "qtype": "glitch", "q": "REDIRECT A GHAST FIREBALL TO DEAL 1000 DAMAGE INSTANTLY!", "vid": "44aGlKddPaE", "ts": 1794496234},
  {"key": "End portal", "arts": ["End portal"], "qtype": "build", "q": "ENTER THE END PORTAL WITH ZERO EYES OF ENDER!", "vid": "DProk4X278A", "ts": 1794540868},
- {"key": "Java Edition 26.4", "arts": ["Java Edition 26.4"], "qtype": "update", "q": "YOU CAN CONVERT HUSKS INTO BRAND NEW FROSTBITES!", "vid": "bvQfPfXnCfs", "ts": 1794580235}
+ {"key": "Java Edition 26.4", "arts": ["Java Edition 26.4"], "qtype": "update", "q": "YOU CAN CONVERT HUSKS INTO BRAND NEW FROSTBITES!", "vid": "bvQfPfXnCfs", "ts": 1794580235},
+ {"key": "Shield", "arts": ["Shield"], "qtype": "build", "q": "UNLOCK SECRET VAULT DOORS WITH A DEFLECTED ARROW!", "vid": "1r6BOng39WY", "ts": 1794626219}
 ],
 "clips": {
  "clip000.mp4": {"w": 1280, "h": 720, "d": 15.0, "br": 0.382, "mo": 0.135, "tags": ["build", "forest"], "ok": true, "tagged": true},
