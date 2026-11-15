@@ -162,7 +162,8 @@
  {"key": "Java Edition 26.4", "arts": ["Java Edition 26.4"], "qtype": "update", "q": "YOU CAN CONVERT HUSKS INTO BRAND NEW FROSTBITES!", "vid": "bvQfPfXnCfs", "ts": 1794580235},
  {"key": "Shield", "arts": ["Shield"], "qtype": "build", "q": "UNLOCK SECRET VAULT DOORS WITH A DEFLECTED ARROW!", "vid": "1r6BOng39WY", "ts": 1794626219},
  {"key": "Blaze", "arts": ["Blaze"], "qtype": "farm", "q": "FREEZE BLAZES IN THE NETHER WITH POWDER SNOW!", "vid": "yYXV89l5Ceo", "ts": 1794663045},
- {"key": "Beacon", "arts": ["Beacon"], "qtype": "glitch", "q": "CREATE MILLIONS OF CUSTOM BEACON COLORS WITH GLASS!", "vid": "4JKOX5fmcNg", "ts": 1794710493}
+ {"key": "Beacon", "arts": ["Beacon"], "qtype": "glitch", "q": "CREATE MILLIONS OF CUSTOM BEACON COLORS WITH GLASS!", "vid": "4JKOX5fmcNg", "ts": 1794710493},
+ {"key": "Note Block", "arts": ["Note Block"], "qtype": "build", "q": "TRIGGER A HIDDEN KEYPAD THROUGH SOLID WALLS!", "vid": "VZYDFVqXgEw", "ts": 1794751652}
 ],
 "clips": {
  "clip000.mp4": {"w": 1280, "h": 720, "d": 15.0, "br": 0.382, "mo": 0.135, "tags": ["build", "forest"], "ok": true, "tagged": true},
