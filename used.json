@@ -172,7 +172,8 @@
  {"key": "Bastion Remnant", "arts": ["Bastion Remnant"], "qtype": "glitch", "q": "STEAL EVERY GOLD BLOCK IN A BASTION!", "vid": "lRvfszXN7hs", "ts": 1795062109},
  {"key": "Sculk Sensor", "arts": ["Sculk Sensor"], "qtype": "farm", "q": "DETECT ANY VIBRATIONS IN AN 8 BLOCK RADIUS INSTANTLY!", "vid": "bAgmcfiyuYY", "ts": 1795103172},
  {"key": "Planned versions", "arts": ["Planned versions"], "qtype": "update", "q": "SURVIVE BRAND NEW ICE CAVES DEEP UNDERGROUND!", "vid": "VhjRaqgPcYk", "ts": 1795147386},
- {"key": "Mushroom Fields", "arts": ["Mushroom Fields"], "qtype": "secret", "q": "HOSTILE MOBS CAN NEVER SPAWN NATURALLY HERE!", "vid": "HC1r4pBiIXI", "ts": 1795188800}
+ {"key": "Mushroom Fields", "arts": ["Mushroom Fields"], "qtype": "secret", "q": "HOSTILE MOBS CAN NEVER SPAWN NATURALLY HERE!", "vid": "HC1r4pBiIXI", "ts": 1795188800},
+ {"key": "Piglin", "arts": ["Piglin"], "qtype": "combat", "q": "KILL PIGLINS IN ONE HIT TO SAVE YOUR GOLD!", "vid": "avavDKBJ8wE", "ts": 1795233829}
 ],
 "clips": {
  "clip000.mp4": {"w": 1280, "h": 720, "d": 15.0, "br": 0.382, "mo": 0.135, "tags": ["build", "forest"], "ok": true, "tagged": true},
