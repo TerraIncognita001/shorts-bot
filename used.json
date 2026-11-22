@@ -175,7 +175,8 @@
  {"key": "Mushroom Fields", "arts": ["Mushroom Fields"], "qtype": "secret", "q": "HOSTILE MOBS CAN NEVER SPAWN NATURALLY HERE!", "vid": "HC1r4pBiIXI", "ts": 1795188800},
  {"key": "Piglin", "arts": ["Piglin"], "qtype": "combat", "q": "KILL PIGLINS IN ONE HIT TO SAVE YOUR GOLD!", "vid": "avavDKBJ8wE", "ts": 1795233829},
  {"key": "Allay", "arts": ["Allay"], "qtype": "farm", "q": "BUILD AN AUTOMATED FARM WITH ZERO REDSTONE!", "vid": "XOiQbBpRIKI", "ts": 1795272354},
- {"key": "Hopper", "arts": ["Hopper"], "qtype": "build", "q": "TRIGGER SECRET DOORS BY JUST DROPPING ITEMS!", "vid": "zUSQcVgrDYM", "ts": 1795316672}
+ {"key": "Hopper", "arts": ["Hopper"], "qtype": "build", "q": "TRIGGER SECRET DOORS BY JUST DROPPING ITEMS!", "vid": "zUSQcVgrDYM", "ts": 1795316672},
+ {"key": "Iron Golem", "arts": ["Iron Golem"], "qtype": "farm", "q": "GENERATE UNLIMITED VILLAGES WITH ONE IRON GOLEM!", "vid": "jyveUQrpe1Q", "ts": 1795358045}
 ],
 "clips": {
  "clip000.mp4": {"w": 1280, "h": 720, "d": 15.0, "br": 0.382, "mo": 0.135, "tags": ["build", "forest"], "ok": true, "tagged": true},
