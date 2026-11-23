@@ -177,7 +177,8 @@
  {"key": "Allay", "arts": ["Allay"], "qtype": "farm", "q": "BUILD AN AUTOMATED FARM WITH ZERO REDSTONE!", "vid": "XOiQbBpRIKI", "ts": 1795272354},
  {"key": "Hopper", "arts": ["Hopper"], "qtype": "build", "q": "TRIGGER SECRET DOORS BY JUST DROPPING ITEMS!", "vid": "zUSQcVgrDYM", "ts": 1795316672},
  {"key": "Iron Golem", "arts": ["Iron Golem"], "qtype": "farm", "q": "GENERATE UNLIMITED VILLAGES WITH ONE IRON GOLEM!", "vid": "jyveUQrpe1Q", "ts": 1795358045},
- {"key": "Honey Block", "arts": ["Honey Block"], "qtype": "glitch", "q": "NEGATE ALL FALL DAMAGE WITH ONE HONEY BLOCK!", "vid": "t1OlYjBosT0", "ts": 1795405565}
+ {"key": "Honey Block", "arts": ["Honey Block"], "qtype": "glitch", "q": "NEGATE ALL FALL DAMAGE WITH ONE HONEY BLOCK!", "vid": "t1OlYjBosT0", "ts": 1795405565},
+ {"key": "Creeper", "arts": ["Creeper"], "qtype": "combat", "q": "SURVIVE a creeper explosion with ZERO DAMAGE!", "vid": "OV4SS-00acU", "ts": 1795457061}
 ],
 "clips": {
  "clip000.mp4": {"w": 1280, "h": 720, "d": 15.0, "br": 0.382, "mo": 0.135, "tags": ["build", "forest"], "ok": true, "tagged": true},
