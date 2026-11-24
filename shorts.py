@@ -1266,6 +1266,31 @@ def script_prompt(topic, qtype, recent, errors):
           '"comment_q": "...", "tags": ["..."], "related": ["..."]}')
 
 
+def fact_check(s, text):
+    """Second Gemini pass: every factual claim must be supported by the source (not just quote existence)."""
+    if not text:
+        return []
+    claims = [{"id": "title", "line": s["title"], "src": ""}, {"id": "hook", "line": plain(s["hook"]), "src": ""}]
+    claims += [{"id": f"beat {i}", "line": plain(b["t"]), "src": b["src"]} for i, b in enumerate(s["beats"], 1)]
+    claims += [{"id": "answer", "line": plain(s["answer"]["t"]), "src": s["answer"]["src"]}]
+    ask = ("You are a strict Minecraft fact-checker. SOURCE is Minecraft Wiki text.\n<<<\n" + text + "\n>>>\n"
+           "For each CLAIM decide if every game-mechanic fact in it (behaviour, cause, number, item, block, mob) "
+           "is directly supported by SOURCE. Story framing is allowed and not a fact: first person, time jumps "
+           "('ten minutes earlier'), feelings, suspense, questions, the narrator doing a test. "
+           "A claim fails if it adds a mechanic, cause or number that SOURCE does not state, or contradicts SOURCE, "
+           "or if its src quote does not prove it. Invented technical-sounding explanations fail.\n"
+           "CLAIMS:\n" + json.dumps(claims, ensure_ascii=False) + "\n"
+           'Return JSON: {"bad": [{"id": "beat 3", "why": "max 15 words"}]} (empty list if all supported).')
+    try:
+        r = gemini(ask, lambda d: isinstance(d, dict) and isinstance(d.get("bad"), list), rounds=2, temperature=0)
+    except SystemExit:
+        print("fact check unavailable, skipped")
+        return []
+    ids = {c["id"] for c in claims}
+    return [f"{b['id']}: not supported by source ({str(b.get('why', ''))[:90]})"
+            for b in r["bad"] if isinstance(b, dict) and b.get("id") in ids]
+
+
 class ScriptError(Exception):
     pass
 
@@ -1282,6 +1307,8 @@ def gen_script(topic, qtype):
                      and isinstance(d.get("answer"), dict))
         s = normalize_script(raw)
         errors = check_script(s, topic.get("text"))
+        if not errors:
+            errors = fact_check(s, topic.get("text"))
         print(f"script attempt {attempt + 1}:", "ok" if not errors else "; ".join(errors)[:280])
         if not errors:
             return s
@@ -1292,8 +1319,11 @@ def gen_script(topic, qtype):
     spoken = len(plain(s["hook"]).split()) + len(plain(s["answer"]["t"]).split()) + sum(
         len(plain(b["t"]).split()) for b in s["beats"])
     if rank[0] == 0 and len(errs) <= 5 and 60 <= spoken <= 115 and len(s["beats"]) in (4, 5, 6):
-        print("using closest script (only length issues)")
-        return s
+        bad = fact_check(s, topic.get("text"))
+        if not bad:
+            print("using closest script (only length issues)")
+            return s
+        errs = bad
     raise ScriptError("; ".join(errs)[:200])
 
 
