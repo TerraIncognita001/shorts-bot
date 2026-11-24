@@ -181,7 +181,8 @@
  {"key": "Creeper", "arts": ["Creeper"], "qtype": "combat", "q": "SURVIVE a creeper explosion with ZERO DAMAGE!", "vid": "OV4SS-00acU", "ts": 1795457061},
  {"key": "End portal", "arts": ["End portal"], "qtype": "secret", "q": "ACTIVATE END PORTALS BACKWARDS TO BREAK THE GAME!", "vid": "FgC9EoAyEFk", "ts": 1795503981},
  {"key": "Minecart with TNT", "arts": ["Minecart with TNT"], "qtype": "anomaly", "q": "I watched a wall of obsidian get vaporized by something completely unarmored.!", "title": "Obsidian isn't safe on this single rail", "vid": "-US0KyhEteU", "ts": 1795546350},
- {"key": "Netherite", "arts": ["Netherite"], "qtype": "experiment", "q": "My fireproof netherite armor was just deleted by a basic green cactus.!", "title": "This netherite item vanished instantly", "vid": "wP4dygBv-ks", "ts": 1795547722}
+ {"key": "Netherite", "arts": ["Netherite"], "qtype": "experiment", "q": "My fireproof netherite armor was just deleted by a basic green cactus.!", "title": "This netherite item vanished instantly", "vid": "wP4dygBv-ks", "ts": 1795547722},
+ {"key": "Wooden Hoe", "arts": ["Wooden Hoe"], "qtype": "challenge", "q": "My wooden hoe just dealt three damage points, breaking basic weapon logic.", "title": "Why a wooden hoe hits harder on Bedrock", "vid": "emU0n0fSg6g", "ts": 1795556695}
 ],
 "clips": {
  "clip000.mp4": {"w": 1280, "h": 720, "d": 15.0, "br": 0.382, "mo": 0.135, "tags": ["build", "forest"], "ok": true, "tagged": true},
