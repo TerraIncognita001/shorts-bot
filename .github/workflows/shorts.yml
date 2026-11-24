@@ -1,23 +1,51 @@
 name: shorts
 on:
   schedule:
-    - cron: "7 23,00,1,6,7 * * *"
+    - cron: "37 */3 * * *"          # GitHub starts about 2 a day, hours late; any one fills the next 24 h (gate.py)
   workflow_dispatch:
+    inputs:
+      slot:
+        description: "Put it in the next free slot (off = public at once)"
+        type: boolean
+        default: false
 permissions:
   contents: write
+  actions: write                    # a slot run starts the next one
+concurrency:                        # never two runs at once
+  group: shorts
+  cancel-in-progress: false
 jobs:
   run:
     runs-on: ubuntu-latest
     timeout-minutes: 40
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref }}    # the branch as it is now: a run that waited must see the last run's used.json
+      - name: which slot
+        run: |
+          if [ "${{ github.event_name }}" = "schedule" ] || [ "${{ inputs.slot }}" = "true" ]; then
+            if [ "$GITHUB_EVENT_NAME" != "schedule" ] && [ "$GITHUB_REF_NAME" != "${{ github.event.repository.default_branch }}" ]; then
+              echo "slots only from the default branch"; exit 1
+            fi
+            python3 gate.py > "$RUNNER_TEMP/gate.env"
+          else
+            echo "GO=1" > "$RUNNER_TEMP/gate.env"
+          fi
+          cat "$RUNNER_TEMP/gate.env" | tee -a "$GITHUB_ENV"
       - uses: actions/setup-python@v5
+        if: env.GO == '1' || env.COMMENTS == '1'
         with:
           python-version: "3.12"
       - run: sudo apt-get update && sudo apt-get install -y ffmpeg fonts-dejavu-core
+        if: env.GO == '1'
       - run: pip install -r requirements.txt
+        if: env.GO == '1' || env.COMMENTS == '1'
       - run: python shorts.py
+        if: env.GO == '1' || env.COMMENTS == '1'
         env:
+          COMMENTS_ONLY: ${{ env.GO != '1' && '1' || '0' }}
+          PUBLISH_AT: ${{ env.SLOT }}
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           PIXABAY_API_KEY: ${{ secrets.PIXABAY_API_KEY }}
           YT_CLIENT_ID: ${{ secrets.YT_CLIENT_ID }}
@@ -26,9 +54,37 @@ jobs:
           AZURE_SPEECH_KEY: ${{ secrets.AZURE_SPEECH_KEY }}
           AZURE_SPEECH_REGION: ${{ secrets.AZURE_SPEECH_REGION }}
           VOICE: "en-US-SteffanNeural"
-      - run: |
+      - name: save state
+        id: save
+        if: ${{ always() && (env.GO == '1' || env.COMMENTS == '1') }}
+        run: |
           git config user.name "bot"
           git config user.email "bot@users.noreply.github.com"
           git add used.json
-          git commit -m "update used" || true
-          git push
+          git commit -m "update used" || exit 0
+          for i in 1 2 3 4; do
+            git pull -q --rebase --autostash origin "$GITHUB_REF_NAME" && git push -q origin "HEAD:$GITHUB_REF_NAME" && exit 0
+            sleep 5
+          done
+          exit 1
+      - name: next slot
+        # It always ends: only after the state was saved, not after two failures in a row, at most 12 a day.
+        if: ${{ !cancelled() && env.SLOT != '' && steps.save.outcome == 'success' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+          FAILED: ${{ job.status == 'failure' && '1' || '0' }}
+        run: |
+          next=$(python3 gate.py --slot)
+          if [ -z "$next" ]; then echo "no free slot"; exit 0; fi
+          if [ "$FAILED" = "1" ]; then
+            last=$(gh run list --workflow shorts.yml --status completed -L 1 --json conclusion --jq '.[0].conclusion')
+            if [ "$last" = "failure" ]; then echo "two failures in a row: stop until the next scheduled run"; exit 0; fi
+          elif [ "$next" = "$SLOT" ]; then
+            echo "this run's slot is not recorded: stop"; exit 0
+          fi
+          waiting=$(gh run list --workflow shorts.yml -L 20 --json databaseId,status --jq "[.[] | select(.status != \"completed\" and .databaseId != $GITHUB_RUN_ID)] | length")
+          if [ "$waiting" != "0" ]; then echo "another run is waiting already"; exit 0; fi
+          runs=$(gh run list --workflow shorts.yml --event workflow_dispatch --created ">=$(date -u +%F)" -L 50 --json databaseId --jq length)
+          if [ "$runs" -ge 12 ]; then echo "$runs runs started today: stop"; exit 0; fi
+          echo "next free slot: $next"
+          gh workflow run shorts.yml --ref "$GITHUB_REF_NAME" -f slot=true

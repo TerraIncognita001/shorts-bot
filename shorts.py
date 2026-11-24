@@ -6,7 +6,7 @@ of a strange Minecraft mechanic (experiment / myth / challenge), the cause revea
 No HACK numbering, no CAPS clickbait, minimal on-screen text.
 Uses same tools: Gemini, edge-tts/Azure, Minecraft Wiki, gameplay clips, music, PIL, ffmpeg, YouTube API.
 """
-import asyncio, base64, bisect, html, json, math, os, pathlib, random, re, subprocess, sys, time, wave
+import asyncio, base64, bisect, calendar, html, json, math, os, pathlib, random, re, subprocess, sys, time, wave
 import requests
 
 
@@ -41,6 +41,7 @@ IMAGES = env("IMAGES", "1") == "1"
 COOLDOWN = int(env("COOLDOWN", "40"))
 TAG_PER_RUN = int(env("TAG_PER_RUN", "12"))
 DRY_RUN = env("DRY_RUN", "0") == "1"
+PUBLISH_AT = env("PUBLISH_AT", "")   # slot run (gate.py): uploaded private, YouTube publishes it at this UTC time
 FACT_MAX = int(env("FACT_MAX", "3"))          # max fact-check calls per run
 FACT_BUDGET = float(env("FACT_BUDGET", "600"))  # seconds since start after which fact-check is skipped
 T_START = time.time()
@@ -2048,7 +2049,15 @@ def video_title(s):
     return h[0].upper() + h[1:] if h else "Something is wrong with this block"
 
 
-def upload(yt, s, qtype, topic, has_images):
+def slot_ts():
+    """Publish time of this run's slot; 0 = public at once (no slot, or the run was too late for it)."""
+    if not PUBLISH_AT:
+        return 0
+    t = calendar.timegm(time.strptime(PUBLISH_AT, "%Y-%m-%dT%H:%M:%SZ"))
+    return t if t > time.time() + 300 else 0
+
+
+def upload(yt, s, qtype, topic, has_images, at=0):
     from googleapiclient.http import MediaFileUpload
     qt = QTYPES[qtype]
     title, q = video_title(s), plain(s["hook"])
@@ -2065,6 +2074,8 @@ def upload(yt, s, qtype, topic, has_images):
                         "description": (f"{q}\n{story}\n\n{ask}".rstrip() + tail)[:4900],
                         "defaultLanguage": "en", "defaultAudioLanguage": "en"},
             "status": {"privacyStatus": env("PRIVACY", "public"), "selfDeclaredMadeForKids": False}}
+    if at:
+        body["status"].update(privacyStatus="private", publishAt=PUBLISH_AT)
     loc = {l: {"title": re.sub(r"#\S+|\|", "", plain(t["title"])).strip()[:60],
                "description": ((t.get("question", "") + "\n" + t.get("story", "") + "\n\n").strip() + tail)[:4900]}
            for l, t in translate(title, q, story).items()}
@@ -2108,8 +2119,7 @@ def add_to_playlists(yt, vid, qtype):
         print("playlist skipped:", str(e)[:180])
 
 
-def post_comment(yt, vid, s):
-    q = s.get("comment_q", "")
+def post_comment(yt, vid, q):
     try:
         if q:
             yt.commentThreads().insert(part="snippet", body={"snippet": {"videoId": vid, "topLevelComment": {
@@ -2117,6 +2127,15 @@ def post_comment(yt, vid, s):
             print("comment posted")
     except Exception as e:
         print("comment skipped:", str(e)[:180])
+
+
+def post_due_comments(yt):
+    """A private video takes no comments: a slot video gets its question on the first run after it went public."""
+    due = [e for e in used[-40:] if e.get("comment_q") and e.get("ts", 0) < time.time()]
+    for e in due:
+        post_comment(yt, e["vid"], e.pop("comment_q"))
+    if due:
+        save_state()
 
 
 # ---- Learning ------------------------------------------------------------------------------------------------------
@@ -2162,8 +2181,12 @@ def report(rows):
 
 
 def main():
-    ensure_fonts()
     yt = None if DRY_RUN else youtube()
+    if yt:
+        post_due_comments(yt)
+    if env("COMMENTS_ONLY", "0") == "1":
+        return
+    ensure_fonts()
     rows = performance(yt) if (LEARN and yt) else []
     report(rows)
     forced = env("QTYPE")
@@ -2192,13 +2215,17 @@ def main():
     if DRY_RUN:
         print("DRY_RUN:", W / "final.mp4")
         return
-    vid = upload(yt, s, qtype, topic, has_images)
+    at = slot_ts()
+    vid = upload(yt, s, qtype, topic, has_images, at)
     used.append({"key": topic["key"], "arts": topic["articles"], "qtype": qtype, "q": plain(s["hook"]),
                  "title": video_title(s),
-                 "vid": vid, "ts": int(time.time())})
+                 "vid": vid, "ts": at or int(time.time()), "up": int(time.time()),
+                 **({"slot": PUBLISH_AT} if PUBLISH_AT else {}),
+                 **({"comment_q": s["comment_q"]} if at and s.get("comment_q") else {})})
     save_state()
     add_to_playlists(yt, vid, qtype)
-    post_comment(yt, vid, s)
+    if not at:
+        post_comment(yt, vid, s.get("comment_q", ""))
 
 
 if __name__ == "__main__":
