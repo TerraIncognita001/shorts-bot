@@ -1528,6 +1528,11 @@ def sfx_whoosh(d=0.42):
     return (y * np.sin(np.pi * p) ** 2).astype(np.float32)
 
 
+def sfx_thump(d=0.28):
+    t = _t(d)
+    return (np.sin(2 * np.pi * (52 + 30 * np.exp(-t / 0.03)) * t) * np.exp(-t / 0.07)).astype(np.float32)
+
+
 def sfx_pop(f0=420.0, f1=980.0, d=0.09):
     t = _t(d)
     ph = 2 * np.pi * np.cumsum(f0 + (f1 - f0) * np.minimum(1, t / 0.05)) / SR
@@ -1574,7 +1579,7 @@ def sfx_thud():
             * 3 * np.exp(-t / 0.05)).astype(np.float32)
 
 
-SFX_FN = {"boom": sfx_boom, "whoosh": sfx_whoosh, "pop": sfx_pop, "tick": sfx_tick, "slam": sfx_slam,
+SFX_FN = {"boom": sfx_boom, "whoosh": sfx_whoosh, "thump": sfx_thump, "pop": sfx_pop, "tick": sfx_tick, "slam": sfx_slam,
           "riser": sfx_riser, "chime": sfx_chime, "thud": sfx_thud, "ping": sfx_ping}
 
 
@@ -1955,8 +1960,8 @@ def build_plan(s, qtype, topic, voice, pics, lib, case_no):
             pan = -pan
             if t0 > 0:
                 fx.append({"t": t0, "kind": "flash", "amp": 0.28 if part == 0 else 0.18})
-                if abs(t0 - dock0) > 0.25:
-                    sfx.append((t0 - 0.03, "whoosh", 0.4))
+                if part == 0 and i < len(cuts) - 2 and abs(t0 - dock0) > 0.25:
+                    sfx.append((t0 - 0.03, "thump", 0.55))
 
     fx += [{"t": reveal_t, "kind": "flash", "amp": 0.6}, {"t": reveal_t, "kind": "shake", "amp": 14}]
     rewind = (hook["t1"] + 0.02, beats[0]["t0"] + 0.05)
