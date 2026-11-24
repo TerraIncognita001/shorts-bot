@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""Terra Incognita Shorts bot v4: "UNLOCKED" format.
+"""Terra Incognita Shorts bot v5: "ANOMALY" format.
 
-Every Short starts with the RESULT of a Minecraft hack (visual hook),
-then shows the exact steps, then the reason it works.
-Designed for maximum retention and shareability in 2026 Shorts algorithm.
+Every Short is a ~35s micro-story: cold open on the climax, rewind, a calm investigation
+of a strange Minecraft mechanic (experiment / myth / challenge), the cause revealed only at the end.
+No HACK numbering, no CAPS clickbait, minimal on-screen text.
 Uses same tools: Gemini, edge-tts/Azure, Minecraft Wiki, gameplay clips, music, PIL, ffmpeg, YouTube API.
 """
 import asyncio, base64, bisect, html, json, math, os, pathlib, random, re, subprocess, sys, time, wave
@@ -351,8 +351,6 @@ def make_sticker(img, height, outline=16, color=WHITE):
 
 # ---- Icons ---------------------------------------------------------------------------------------------------------
 HEART = ["..XX...XX..", ".XXXX.XXXX.", "XXXXXXXXXXX", "XXXXXXXXXXX", ".XXXXXXXXX.", "..XXXXXXX..", "...XXXXX...", "....XXX....", ".....X....."]
-LOCK = ["...XXXXX...", "..XX...XX..", "..XX...XX..", "..XX...XX..", ".XXXXXXXXX.", ".XXXXXXXXX.", ".XXXXkXXXX.", ".XXXXkXXXX.", ".XXXXXXXXX.", ".XXXXXXXXX."]
-LOCK_OPEN = ["........XXX.", ".......XX.XX", ".......XX.XX", ".......XX.XX", ".XXXXXXXXX..", ".XXXXXXXXX..", ".XXXXkXXXX..", ".XXXXkXXXX..", ".XXXXXXXXX..", ".XXXXXXXXX.."]
 _ICONS = {}
 
 
@@ -384,10 +382,6 @@ def icon(rows, px, fill, outline=(20, 8, 8), hi=None, key=None):
 
 def heart(px):
     return icon(HEART, px, (232, 32, 44), hi={(2, 1), (3, 1), (1, 2), (2, 2), (1, 3)}, key=("heart", px))
-
-
-def lock_icon(px, opened=False):
-    return icon(LOCK_OPEN if opened else LOCK, px, (255, 205, 30) if opened else (200, 200, 205), (30, 24, 8), key=("lock", px, opened))
 
 
 # ---- Widgets -------------------------------------------------------------------------------------------------------
@@ -478,17 +472,13 @@ def fit_tile(tile, max_w, max_h):
     return tile if s >= 0.999 else tile.resize((max(1, int(tile.width * s)), max(1, int(tile.height * s))), Image.LANCZOS)
 
 
-# ---- Scene compositor (UNLOCKED / HACK format) ---------------------------------------------------------------------
+# ---- Scene compositor (ANOMALY format) -----------------------------------------------------------------------------
 ASP = CW / CH
-HOOK_CX, HOOK_CY = 540, 420
 VIS_CY = 780
 CAP_CX, CAP_CY = 500, 1280
-BAR_X0, BAR_X1, BAR_Y, BAR_H = 60, 820, 1520, 28
-LOCK_CX = 900
 GHOST = (206, 210, 220)
-HOOK_SIZES = [200, 180, 160, 140, 120, 100]
 CAP_SIZES = [110, 100, 90, 80, 70]
-GRADE = "eq=contrast=1.12:saturation=1.30:gamma=0.96,unsharp=5:5:1.0:5:5:0.0"
+GRADE = "eq=contrast=1.14:saturation=0.92:gamma=0.92,unsharp=5:5:0.8:5:5:0.0"
 
 
 def lerp(a, b, e):
@@ -591,25 +581,8 @@ class ShotReader:
             self.proc = None
 
 
-ORB = ["..GGGG..", ".GYYYYG.", "GYYWWYYG", "GYWYYYYG", "GYYYYYYG", "GYYYYYYG", ".GYYYYG.", "..GGGG.."]
-ORB_COL = {"G": (86, 190, 40, 255), "Y": (196, 238, 56, 255), "W": (250, 255, 176, 255)}
-
-
-def orb_tile(px=4):
-    im = Image.new("RGBA", (8 * px + 20, 8 * px + 20), (0, 0, 0, 0))
-    glow = Image.new("RGBA", im.size, (0, 0, 0, 0))
-    ImageDraw.Draw(glow).ellipse([2, 2, im.width - 3, im.height - 3], fill=(170, 255, 60, 90))
-    im.alpha_composite(glow.filter(ImageFilter.GaussianBlur(5)))
-    d = ImageDraw.Draw(im)
-    for y, row in enumerate(ORB):
-        for x, c in enumerate(row):
-            if c in ORB_COL:
-                d.rectangle([10 + x * px, 10 + y * px, 10 + (x + 1) * px - 1, 10 + (y + 1) * px - 1], fill=ORB_COL[c])
-    return im
-
-
 class Renderer:
-    """Layout for HACK / UNLOCKED format: result first, then steps, then unlock."""
+    """ANOMALY format: cold open on the climax, rewind, investigation, single-word reveal. Minimal text."""
     def __init__(self, plan):
         self.p = plan
         self.acc = plan["accent"]
@@ -617,64 +590,31 @@ class Renderer:
         self.white = Image.new("RGB", (CW, CH), (255, 255, 255))
         self.reader, self.si = None, -1
         self.memo = {}
-        p = self.p
-        hw = [w.upper() for w, _ in p["hook_words"]]
-        hcol = [RED if f == "r" else self.acc if f == "y" else WHITE for _, f in p["hook_words"]]
-        self.hook_words, self.hook_col = hw, hcol
-        self.hook_size, self.hook_pos, _ = layout_words(hw, hcol, HOOK_SIZES, 960, HOOK_CX, HOOK_CY, 3, max_h=380)
-        self.tab = self._tab()
         self.result_card = self._result_card()
-        self.stamp = self._stamp()
-        self.orb = orb_tile()
-        self.orbs = self._orbs()
-        self.lock = {False: lock_icon(6, False), True: lock_icon(6, True)}
-
-    def _tab(self):
-        p = self.p
-        a = chip(f"HACK #{p['case_no']:03d}", INK, self.acc, 26, 12)
-        b = chip(p["label"], self.acc, (14, 18, 24), 26, 12)
-        im = Image.new("RGBA", (a.width + b.width + 8, a.height), (0, 0, 0, 0))
-        im.alpha_composite(a, (0, 0))
-        im.alpha_composite(b, (a.width + 8, 0))
-        return im
+        self.rew = self._rewind_icon()
 
     def _result_card(self):
         short = str(self.p["reveal"]["short"]).upper()
         words = short.split() or [short]
-        size, lines = split_lines(words, 880, [210, 180, 160, 140, 120, 100], max_lines=2, max_h=280, lh=0.92)
+        size, lines = split_lines(words, 900, [220, 190, 160, 140, 120], max_lines=2, max_h=300, lh=0.92)
         rows = [" ".join(words[i] for i in ln) for ln in lines]
         tiles = [text_tile(r, size, GOLD if k == 0 else WHITE) for k, r in enumerate(rows)]
-        th = sum(t.height for t in tiles) - int(size * 0.18) * (len(tiles) - 1)
-        w = min(980, max(max(t.width for t in tiles) + 80, 720))
-        h = th + 130
-        im = panel(w, h, fill=(8, 12, 18, 250), border=GREEN, bw=8)
-        lab = text_tile("UNLOCKED", 28, GREEN, "pixel", stroke=3, shadow=False)
-        im.alpha_composite(lab, ((w - lab.width) // 2, 22))
-        y = 70
+        h = sum(t.height for t in tiles) - int(size * 0.18) * (len(tiles) - 1)
+        im = Image.new("RGBA", (max(t.width for t in tiles), h), (0, 0, 0, 0))
+        y = 0
         for t in tiles:
-            im.alpha_composite(t, ((w - t.width) // 2, y))
+            im.alpha_composite(t, ((im.width - t.width) // 2, y))
             y += t.height - int(size * 0.18)
         return im
 
-    def _stamp(self):
-        tt = text_tile("WORKS", 58, RED, "pixel", stroke=0, shadow=False, pad=0)
-        w, h = tt.width + 50, tt.height + 40
-        im = Image.new("RGBA", (w, h), (0, 0, 0, 0))
+    @staticmethod
+    def _rewind_icon(h=70):
+        im = Image.new("RGBA", (int(h * 1.6) + 12, h + 12), (0, 0, 0, 0))
         d = ImageDraw.Draw(im)
-        d.rectangle([0, 0, w - 1, h - 1], outline=RED + (255,), width=7, fill=(255, 255, 255, 230))
-        d.rectangle([12, 12, w - 13, h - 13], outline=RED + (255,), width=3)
-        im.alpha_composite(tt, (25, 18))
-        return im.rotate(7, resample=Image.BICUBIC, expand=True)
-
-    def _orbs(self):
-        rnd = random.Random(17)
-        out = []
-        for _ in range(18):
-            ang = rnd.uniform(-math.pi * 0.95, -math.pi * 0.05)
-            sp = rnd.uniform(280, 580)
-            out.append({"vx": math.cos(ang) * sp, "vy": math.sin(ang) * sp, "delay": rnd.uniform(0, 0.14),
-                        "size": rnd.choice([0.75, 1.0, 1.15]), "fly": rnd.uniform(0.32, 0.48)})
-        return out
+        for k in range(2):
+            x = 6 + k * h * 0.8
+            d.polygon([(x, 6 + h / 2), (x + h * 0.8, 6), (x + h * 0.8, 6 + h)], fill=WHITE + (235,))
+        return im
 
     def shot_at(self, t):
         shots = self.p["shots"]
@@ -705,19 +645,6 @@ class Renderer:
         u, dur = t - s["t0"], max(0.1, s["t1"] - s["t0"])
         z = (1 + 0.08 * u / dur) * (1 + s.get("punch", 0.15) * (1 - min(1.0, u / 0.22)) ** 2)
         return self.reader.frame(z, s.get("pan", 0.0) * (2 * u / dur - 1), sx * 0.7, sy * 0.7)
-
-    def draw_hook(self, base, t, sx, sy):
-        p = self.p
-        for rank, hp in enumerate(self.hook_pos):
-            i = hp["i"]
-            ts = p["hook_t"][i]
-            spoken = t >= ts - 0.02
-            tile = text_tile(self.hook_words[i], self.hook_size, self.hook_col[i] if spoken else GHOST)
-            pop = 1 + 0.25 * (1 - clamp((t - ts) / 0.15)) ** 2 if spoken else 1.0
-            blit(base, tile, hp["x"] + sx * 0.3, hp["y"] + sy * 0.3, pop)
-
-    def draw_tab(self, base, t):
-        blit(base, self.tab, 40 + self.tab.width / 2, 175)
 
     def visual_at(self, t):
         for v in self.p["visuals"]:
@@ -755,34 +682,27 @@ class Renderer:
             blit(base, v["tile"], 540 + sx, VIS_CY + 6 * math.sin(u * 2.7) + sy, s * out, ang)
 
     def draw_reveal(self, base, t, sx, sy):
-        r = self.p["reveal"]
-        u = t - r["t"]
+        u = t - self.p["reveal"]["t"]
         if u < 0:
             return
         s = 0.4 + 0.6 * ease_out_back(u / 0.32, 2.3)
-        blit(base, self.result_card, 540 + sx, 920 + sy, s)
-        us = u - 0.45
-        if us >= 0:
-            blit(base, self.stamp, 740 + sx, 920 + self.result_card.height / 2 - 30 + sy,
-                 1 + 1.5 * (1 - ease_out_cubic(us / 0.18)), 0.0, clamp(us / 0.06))
-        sxo, syo = 540, 920
-        tx, ty = LOCK_CX, BAR_Y + BAR_H / 2
-        for o in self.orbs:
-            v = u - o["delay"] - 0.04
-            if v < 0:
-                continue
-            if v < o["fly"]:
-                x = sxo + o["vx"] * v * (1 - 0.75 * v)
-                y = syo + o["vy"] * v + 480 * v * v
-            else:
-                v0 = o["fly"]
-                x0 = sxo + o["vx"] * v0 * (1 - 0.75 * v0)
-                y0 = syo + o["vy"] * v0 + 480 * v0 * v0
-                w = (v - v0) / 0.55
-                if w >= 1:
-                    continue
-                x, y = lerp(x0, tx, w * w), lerp(y0, ty, w * w)
-            blit(base, self.orb, x, y, o["size"])
+        blit(base, self.result_card, 540 + sx, 860 + sy, s)
+
+    def draw_rewind(self, base, t):
+        r0, r1 = self.p["rewind"]
+        if not r0 <= t < r1:
+            return None
+        k = (t - r0) / (r1 - r0)
+        g = base.convert("L").convert("RGB")
+        arr = np.asarray(g, dtype=np.int16).copy()
+        rnd = np.random.default_rng(int(t * FPS))
+        for y in rnd.integers(0, CH - 40, 6):
+            arr[y:y + 30] = np.roll(arr[y:y + 30], int(rnd.integers(-60, 60)), axis=1)
+        arr[::4] = arr[::4] * 0.6
+        out = Image.fromarray(np.clip(arr, 0, 255).astype(np.uint8), "RGB")
+        if int(k * 8) % 2 == 0:
+            out.paste(self.rew, (60, 170), self.rew)
+        return out
 
     def draw_captions(self, base, t):
         ch = None
@@ -810,40 +730,21 @@ class Renderer:
             blit(base, text_tile(ch["txt"][i], ch["size"], col), it["x"], it["y"] + 0.04 * ch["size"], sc)
 
     def draw_bar(self, base, t):
-        p = self.p
-        r = p["reveal"]["t"]
+        prog = clamp(t / self.p["total"])
         d = ImageDraw.Draw(base)
-        prog = clamp(t / r)
-        done = t >= r
-        d.rectangle([BAR_X0 - 4, BAR_Y - 4, BAR_X1 + 4, BAR_Y + BAR_H + 4], fill=(6, 8, 10))
-        d.rectangle([BAR_X0, BAR_Y, BAR_X1, BAR_Y + BAR_H], fill=(45, 50, 58))
-        fw = int((BAR_X1 - BAR_X0) * prog)
-        if fw > 0:
-            col, hi = ((255, 205, 30), (255, 240, 150)) if done else ((88, 209, 59), (150, 245, 120))
-            d.rectangle([BAR_X0, BAR_Y, BAR_X0 + fw, BAR_Y + BAR_H], fill=col)
-            d.rectangle([BAR_X0, BAR_Y, BAR_X0 + fw, BAR_Y + 7], fill=hi)
-        for k in range(1, 9):
-            x = BAR_X0 + (BAR_X1 - BAR_X0) * k // 9
-            d.rectangle([x - 1, BAR_Y, x + 1, BAR_Y + BAR_H], fill=(6, 8, 10))
-        lk = self.lock[done]
-        sc = 1.0 + (0.65 * (1 - ease_out_cubic((t - r) / 0.32)) if done and t - r < 0.32 else 0.0)
-        blit(base, lk, LOCK_CX, BAR_Y + BAR_H / 2, sc)
-        if done:
-            txt, col = "UNLOCKED!", GOLD
-        else:
-            txt, col = f"HACK IN {max(1, math.ceil(r - t))}S", (200, 205, 215)
-        tt = text_tile(txt, 30, col, "pixel", stroke=3, shadow=False)
-        base.paste(tt, (BAR_X0 - 4, BAR_Y - 6 - tt.height), tt)
+        d.rectangle([0, CH - 10, CW, CH], fill=(20, 22, 26))
+        d.rectangle([0, CH - 10, int(CW * prog), CH], fill=self.acc)
 
     def frame(self, t):
         sx, sy, fl = self.fx_state(t)
         base = self.background(t, sx, sy)
         base.paste(self.shade, (0, 0), self.shade)
-        self.draw_tab(base, t)
-        self.draw_hook(base, t, sx, sy)
         self.draw_visual(base, t, sx, sy)
         self.draw_reveal(base, t, sx, sy)
         self.draw_captions(base, t)
+        rw = self.draw_rewind(base, t)
+        if rw is not None:
+            base = rw
         self.draw_bar(base, t)
         if fl > 0.02:
             base = Image.blend(base, self.white, min(1.0, fl))
@@ -958,29 +859,29 @@ def gemini(prompt, ok, rounds=5, parts=None, temperature=None):
     raise SystemExit("Gemini unavailable, try later")
 
 
-# ---- HACK TYPES (new content directions) ---------------------------------------------------------------------------
+# ---- STORY TYPES (mystery / experiment genre) ---------------------------------------------------------------------
 QTYPES = {
-    "secret": dict(label="SECRET", accent=PURPLE, subjects=1, playlist="Minecraft Secrets Unlocked",
-                   ask="a hidden mechanic or little-known feature that most players miss",
-                   tags=["Minecraft secret", "Minecraft hidden", "Minecraft trick"]),
-    "build": dict(label="BUILD HACK", accent=CYAN, subjects=1, playlist="Minecraft Build Hacks",
-                  ask="a clever, fast, or secret build technique (hidden room, one-block trick, compact design)",
-                  tags=["Minecraft build", "Minecraft secret room", "Minecraft hack"]),
-    "farm": dict(label="OP FARM", accent=GREEN, subjects=1, playlist="Minecraft OP Farms",
-                 ask="an efficient, surprising, or zero-tick style farm / auto system that feels overpowered",
-                 tags=["Minecraft farm", "Minecraft auto", "Minecraft OP"]),
-    "combat": dict(label="COMBAT TRICK", accent=RED, subjects=1, playlist="Minecraft Combat Tricks",
-                   ask="a combat, PvP or mob-fighting technique that gives a real edge",
-                   tags=["Minecraft PvP", "Minecraft combat", "Minecraft tip"]),
-    "glitch": dict(label="GLITCH", accent=ORANGE, subjects=1, playlist="Minecraft Glitches & Myths",
-                   ask="a real glitch, unintended behavior or viral myth that actually works (or doesn't)",
-                   tags=["Minecraft glitch", "Minecraft myth", "Minecraft broken"]),
-    "update": dict(label="NEW UPDATE", accent=(110, 190, 255), subjects=1, playlist="Minecraft Update Hacks",
-                   ask="the most useful or surprising player-facing feature from the newest Java update",
-                   tags=["Minecraft update", "Minecraft 1.21", "Minecraft new"]),
+    "anomaly": dict(label="ANOMALY", accent=PURPLE, subjects=1, playlist="Minecraft Anomalies",
+                    ask="a mechanic that seems to break the rules of the game (physics, logic, AI) and has a real cause",
+                    tags=["Minecraft mystery", "Minecraft anomaly", "Minecraft mechanics"]),
+    "experiment": dict(label="EXPERIMENT", accent=CYAN, subjects=1, playlist="Minecraft Experiments",
+                       ask="a 'what happens if...' experiment with a surprising, verifiable outcome",
+                       tags=["Minecraft experiment", "what happens if Minecraft", "Minecraft test"]),
+    "myth": dict(label="MYTH", accent=ORANGE, subjects=1, playlist="Minecraft Myths Investigated",
+                 ask="a myth, rumour or 'impossible' behaviour investigated step by step until the real cause appears",
+                 tags=["Minecraft myth", "Minecraft investigation", "Minecraft theory"]),
+    "lost": dict(label="LOST", accent=RED, subjects=1, playlist="Minecraft Lost Files",
+                 ask="a removed, unused or forgotten feature, told like an investigation of something that should not exist",
+                 tags=["Minecraft removed features", "Minecraft unused", "Minecraft lore"]),
+    "challenge": dict(label="CHALLENGE", accent=GREEN, subjects=1, playlist="Minecraft Strange Challenges",
+                      ask="a tense survival challenge where one obscure mechanic decides if you live or die",
+                      tags=["Minecraft challenge", "Minecraft survival", "Minecraft mechanics"]),
+    "update": dict(label="NEW", accent=(110, 190, 255), subjects=1, playlist="Minecraft Update Anomalies",
+                   ask="the strangest or most unexpected player-facing change in the newest Java update",
+                   tags=["Minecraft update", "Minecraft new update", "Minecraft mystery"]),
 }
 
-SERIES = "Terra Incognita: Minecraft Unlocked"
+SERIES = "Terra Incognita: Minecraft Anomalies"
 SCENES = ["plains", "forest", "desert", "snow", "ocean", "mountain", "cave", "nether", "end", "village", "build",
           "farm", "fight", "night", "redstone", "any"]
 CATS = ["Category:Mobs", "Category:Blocks", "Category:Items", "Category:Generated structures",
@@ -1164,10 +1065,10 @@ def pick_topic(qtype):
     for _ in range(5):
         cands = random.sample(pop, min(len(pop), 24)) + random.sample(wiki_c, min(len(wiki_c), 10))
         random.shuffle(cands)
-        fmt = '{"article": "exact page title", "angle": "one sentence: the specific surprising hack or secret"}'
+        fmt = '{"article": "exact page title", "angle": "one sentence: the strange observation and its real cause"}'
         ask = (f"Pick ONE subject for a viral Minecraft YouTube Short about {qt['ask']}. "
-               "Choose something EVERY player recognizes. Freshness comes from the ANGLE (a surprising use, "
-               "a hidden mechanic, a compact design, an OP interaction). ")
+               "Choose something EVERY player recognizes. Freshness comes from the ANGLE: something that looks "
+               "impossible or wrong, a 'what happens if' experiment, a myth to test, a forgotten feature. ")
         if len(cands) >= 8:
             ask += f"Choose ONLY from this list: {cands}. "
         if heads:
@@ -1221,6 +1122,7 @@ NUMW = {"two": 2, "three": 3, "four": 4, "five": 5, "six": 6, "seven": 7, "eight
         "hundred": 100, "thousand": 1000, "half": 0.5, "double": 2, "triple": 3}
 BANNED = re.compile(r"did you know|in this video|welcome|hey guys|subscribe|like and|let'?s dive|today we|have you ever|"
                     r"you won'?t believe|stay tuned|don'?t forget|smash that|link in", re.I)
+OLDSTYLE = re.compile(r"\b(hacks?|tricks?|secret base|tutorial|step \d|#\s*\d+|unlocked|op farm)\b", re.I)
 HEDGE = re.compile(r"\b(it depends|maybe|might be|not sure|unclear|we don'?t know|nobody knows)\b", re.I)
 
 
@@ -1260,38 +1162,50 @@ def normalize_script(d):
     if hook and not plain(hook).endswith(("!", "?")):
         hook = hook + "!"
     tags = [re.sub(r"[#\s]+", " ", str(t)).strip() for t in d.get("tags", []) if str(t).strip()][:10]
-    return {"hook": hook, "beats": beats, "answer": answer, "comment_q": plain(d.get("comment_q", "")), "tags": tags,
+    title = re.sub(r"\s+", " ", re.sub(r"#\S+|\|", " ", plain(d.get("title", "")))).strip(" .-")
+    return {"title": title, "hook": hook, "beats": beats, "answer": answer, "comment_q": plain(d.get("comment_q", "")), "tags": tags,
             "related": [str(x) for x in d.get("related", []) if str(x).strip()][:3]}
 
 
-def check_script(s, text):
+def title_errors(t):
     errs = []
+    if not 12 <= len(t) <= 45:
+        errs.append(f"title has {len(t)} chars; need 15-45")
+    if sum(len(w) > 3 and w.isupper() for w in re.findall(r"[A-Za-z]+", t)):
+        errs.append("title has CAPS words; write a normal sentence")
+    if OLDSTYLE.search(t) or BANNED.search(t):
+        errs.append("title uses old hack/tutorial words")
+    return errs
+
+
+def check_script(s, text):
+    errs = title_errors(s["title"])
     h = plain(s["hook"])
     n = len(h.split())
-    if not 4 <= n <= 12:
-        errs.append(f"hook has {n} words; need 5-10")
-    if BANNED.search(h):
-        errs.append("hook has banned filler")
-    if not 3 <= len(s["beats"]) <= 4:
-        errs.append(f"{len(s['beats'])} beats; need 3 or 4")
+    if not 6 <= n <= 16:
+        errs.append(f"hook has {n} words; need 7-14")
+    if BANNED.search(h) or OLDSTYLE.search(h):
+        errs.append("hook has banned filler or hack words")
+    if not 4 <= len(s["beats"]) <= 6:
+        errs.append(f"{len(s['beats'])} beats; need 4 to 6")
     a = s["answer"]
-    if not 3 <= len(a["short"]) <= 28:
-        errs.append("answer.short must be 3-28 characters")
-    if not 6 <= len(a["t"].split()) <= 18:
-        errs.append("answer.t must be 6-18 words")
+    if not 2 <= len(a["short"]) <= 18 or len(a["short"].split()) > 2:
+        errs.append("answer.short must be 1-2 words, max 18 characters")
+    if not 7 <= len(a["t"].split()) <= 22:
+        errs.append("answer.t must be 8-20 words")
     if HEDGE.search(a["t"]) or HEDGE.search(a["short"]):
         errs.append("answer hedges")
     words_total = n + len(a["t"].split())
     for i, b in enumerate(s["beats"], 1):
         k = len(plain(b["t"]).split())
         words_total += k
-        if not 4 <= k <= 13:
-            errs.append(f"beat {i} has {k} words")
-    if not 36 <= words_total <= 70:
-        errs.append(f"{words_total} total words; aim 40-60")
+        if not 5 <= k <= 18:
+            errs.append(f"beat {i} has {k} words; need 6-16")
+    if not 66 <= words_total <= 104:
+        errs.append(f"{words_total} spoken words in total; aim 75-95")
     alltext = " ".join([h, a["t"]] + [b["t"] for b in s["beats"]])
-    if BANNED.search(alltext):
-        errs.append("banned filler phrase")
+    if BANNED.search(alltext) or OLDSTYLE.search(alltext):
+        errs.append("banned filler or hack/tutorial wording")
     if text:
         tw = set(toks(text))
         pool = numbers_in(text)
@@ -1315,33 +1229,39 @@ def script_prompt(topic, qtype, recent, errors):
     extra = {"update": f"The update is {topic.get('version', '')}. Focus on the single most useful player-facing change.\n"}.get(qtype, "")
     fix = ("\nPREVIOUS ATTEMPT REJECTED. Fix these:\n- " + "\n- ".join(errors) + "\n" if errors else "")
     return (
-        "You write ONE 15-20 second YouTube Short for Minecraft. Format: THE HACK / UNLOCKED.\n"
+        "You are the lead writer of viral Minecraft YouTube Shorts in the style of Wifies, Camman18 and ARG-like "
+        "mystery investigations. You NEVER write dry hacks, bugs, tutorials or '1-2-3' instructions. "
+        "Banned words: hack, trick, secret base, tutorial, unlocked, OP. No CAPS clickbait.\n"
+        "Write ONE ~35 second micro-story / experiment / mystery.\n"
         "STRUCTURE:\n"
-        "1. HOOK (spoken + shown first 1.5s): the RESULT of the hack in the most dramatic way possible. "
-        "Not a question. A statement that makes the viewer stop scrolling. Example: 'SECRET ROOM WITH ONLY 8 BLOCKS' "
-        "or 'THIS FARM MAKES 2000 ITEMS PER HOUR' or 'YOU CAN SLEEP IN THE NETHER'.\n"
-        "2. BEATS (3-4 short lines): the exact steps or the key details that make it work. Each beat is one concrete action or number.\n"
-        "3. ANSWER: the final confirmation + why it works (one number or condition from the source).\n"
-        "VOICE: energetic friend who just discovered something crazy. Short sentences. 'you'. No greetings.\n"
+        "1. HOOK (0-3s, cold open): we start AT THE CLIMAX - the strange or dangerous moment is already happening. "
+        "Not a fact, an intrigue, paradox or threat. The viewer must feel something impossible is going on. "
+        "Example: 'I found the one block that breaks creeper explosion physics, and it's not obsidian.'\n"
+        "2. BEATS (4-6 lines): the first beat rewinds ('Here's how I got here.' / 'Ten minutes earlier...'). "
+        "By the 2nd beat (~5s) show a weird result or ask the core question. Then investigate: test, compare, "
+        "rule things out. Every beat is a new concrete action or observation (a new shot every 3-4s). "
+        "Never list steps. The last beat is a cliffhanger right before the answer.\n"
+        "3. ANSWER (last 3s): the real cause, revealed only now, grounded in the source.\n"
+        "VOICE: calm, slightly tense researcher who stumbled on an anomaly. First person, rhythmic, alive. "
+        "Short sentences. No greetings, no calls to subscribe.\n"
         f'SUBJECT: "{subject}". Angle: {topic.get("angle", "")}\n'
         f"TYPE: {qt['ask']}\n{extra}{source}"
-        "HOOK rules:\n"
-        "- 5-10 words, ends with ! or ?\n"
-        "- First words must be the familiar thing or the crazy result.\n"
-        "- Wrap the most important word in [r]...[/r], one more in [y]...[/y] if needed.\n"
-        "BEATS: 5-12 words each. Concrete steps or facts. Last beat builds anticipation.\n"
-        "ANSWER:\n"
-        "- answer.t: 7-16 words, starts with the payoff.\n"
-        "- answer.short: max 5 words / 26 chars shown huge (e.g. '8 BLOCKS ONLY', '2000/HOUR', 'IT WORKS').\n"
-        "PER LINE: src = exact short quote from SOURCE that proves it. scene = one of the allowed scenes. "
-        "show = exact wiki page title for a picture, or \"\".\n"
-        "viz (optional, max 2): {\"type\":\"number\",\"text\":\"8 BLOCKS\"} or {\"type\":\"steps\",\"steps\":[\"Place hopper\",\"Add chest\",\"Done\"],\"label\":\"STEPS\"}.\n"
-        "TOTAL spoken words: 40-60.\n"
-        "- comment_q: short question asking viewers to try it or share result (max 9 words).\n"
+        "RULES:\n"
+        "- title: 15-45 characters, natural sentence case, no CAPS words, no '|', no hashtags. "
+        "Examples: 'This block shouldn't exist in 1.21', 'Why did the End portal open backwards?'\n"
+        "- hook: 7-14 words. Wrap the single most unsettling word in [r]...[/r].\n"
+        "- beats: 6-16 words each.\n"
+        "- answer.t: 8-20 words, states the cause plainly. answer.short: 1-2 words, max 18 chars "
+        "(the only big text on screen, e.g. 'Hitbox', 'Light level 0').\n"
+        "- TOTAL spoken words: 75-95.\n"
+        "PER LINE: src = exact short quote from SOURCE that proves it. scene = one of the allowed scenes "
+        f"({', '.join(SCENES)}). show = exact wiki page title for a picture, or \"\".\n"
+        "viz (optional, max 1, only for a striking number): {\"type\":\"number\",\"text\":\"15 BLOCKS\"}.\n"
+        "- comment_q: a short question inviting theories (max 9 words), e.g. 'What do you think caused it?'\n"
         "- tags: 5-8 tags. related: 0-3 extra wiki titles.\n"
         + (f"- Avoid recent hooks: {recent}\n" if recent else "")
         + fix
-        + 'Return JSON: {"hook": "...", "beats": [{"t": "...", "scene": "build", "show": "Hopper", "viz": null, "src": "..."}], '
+        + 'Return JSON: {"title": "...", "hook": "...", "beats": [{"t": "...", "scene": "cave", "show": "", "viz": null, "src": "..."}], '
           '"answer": {"t": "...", "short": "...", "scene": "any", "show": "", "src": "..."}, '
           '"comment_q": "...", "tags": ["..."], "related": ["..."]}')
 
@@ -1350,7 +1270,7 @@ class ScriptError(Exception):
     pass
 
 
-SOFT = ("spoken words in total", "words; it must have", "words; need")
+SOFT = ("spoken words in total", "words; it must have", "words; need", "title has")
 
 
 def gen_script(topic, qtype):
@@ -1371,7 +1291,7 @@ def gen_script(topic, qtype):
     s, errs, rank = best
     spoken = len(plain(s["hook"]).split()) + len(plain(s["answer"]["t"]).split()) + sum(
         len(plain(b["t"]).split()) for b in s["beats"])
-    if rank[0] == 0 and len(errs) <= 5 and 32 <= spoken <= 85 and len(s["beats"]) in (3, 4):
+    if rank[0] == 0 and len(errs) <= 5 and 60 <= spoken <= 115 and len(s["beats"]) in (4, 5, 6):
         print("using closest script (only length issues)")
         return s
     raise ScriptError("; ".join(errs)[:200])
@@ -1384,9 +1304,11 @@ def clean_viz(s):
             b["viz"] = None
     seen = 0
     for b in s["beats"]:
+        if b.get("viz") and b["viz"]["type"] != "number":
+            b["viz"] = None
         if b.get("viz"):
             seen += 1
-            if seen > 2:
+            if seen > 1:
                 b["viz"] = None
     return s
 
@@ -1401,10 +1323,10 @@ def spoken_lines(s):
 
 # ---- Audio ---------------------------------------------------------------------------------------------------------
 SR = 44100
-PROSODY = {"hook": (6, "+4Hz", "+5%"), "beat": (0, "+0Hz", "+0%"), "cliff": (-3, "-2Hz", "+0%"),
-           "answer": (-2, "+1Hz", "+10%")}
+PROSODY = {"hook": (-4, "-3Hz", "+5%"), "beat": (-6, "-2Hz", "+0%"), "cliff": (-10, "-4Hz", "-5%"),
+           "answer": (-8, "-2Hz", "+5%")}
 AZURE_BAD = []
-WOBBLE = [(0, 0), (3, 2), (-2, -2), (2, 1), (-1, 2)]
+WOBBLE = [(0, 0), (2, 1), (-2, -1), (1, 1), (-1, 0)]
 
 
 def _prosody(kind, idx=0):
@@ -1863,8 +1785,8 @@ class Pics:
 
 
 # ---- Plan builder --------------------------------------------------------------------------------------------------
-DOCK_GAP, BEAT_GAP, ANSWER_GAP, HOLD, MIN_HOOK = 0.35, 0.14, 0.55, 0.95, 1.6
-MAX_SHOT = 2.7
+DOCK_GAP, BEAT_GAP, ANSWER_GAP, HOLD, MIN_HOOK = 0.55, 0.22, 0.75, 1.2, 1.6
+MAX_SHOT = 3.4
 
 
 def chunk_idx(tokens):
@@ -1931,13 +1853,8 @@ def build_plan(s, qtype, topic, voice, pics, lib, case_no):
     total = ans["t1"] + HOLD
     reveal_t = ans["t0"] - 0.08
     dock0 = hook["t1"] + 0.03
-    dock1 = dock0 + 0.30
-
-    qtok = parse_marked(s["hook"])
-    qtimes = align(qtok, hook["words"], hook["dur"])
-    q_t = [hook["t0"] + a for a, _ in qtimes]
     caps = []
-    for L in lines[1:]:
+    for L in lines:
         toks_ = auto_flags(parse_marked(L["marked"]))
         times = align(toks_, L["words"], L["dur"])
         idx = chunk_idx(toks_)
@@ -1948,16 +1865,6 @@ def build_plan(s, qtype, topic, voice, pics, lib, case_no):
                                                     for k in ch]})
         L["times"] = [(L["t0"] + a, L["t0"] + b) for a, b in times]
         L["toks"] = toks_
-
-    arts = topic["articles"]
-    heroes = []
-    for k, a in enumerate(arts[:1]):
-        p = pics.get(a, advance=False)
-        if p:
-            heroes.append(sticker_for(p, 480, max_w=850))
-    if not heroes:
-        p = pics.any()
-        heroes = [sticker_for(p, 480)] if p else [mystery_block()]
 
     visuals, last_pic, k_side = [], None, 0
     bounds = [b["t0"] - 0.05 for b in beats] + [reveal_t]
@@ -2002,11 +1909,12 @@ def build_plan(s, qtype, topic, voice, pics, lib, case_no):
             a["t1"] = end
 
     cuts = [0.0] + bounds + [total]
-    scenes = [s["beats"][0]["scene"]] + [b["scene"] for b in s["beats"]] + [s["answer"]["scene"]]
+    climax = s["answer"]["scene"] if s["answer"]["scene"] != "any" else s["beats"][-1]["scene"]
+    scenes = [climax] + [b["scene"] for b in s["beats"]] + [s["answer"]["scene"]]
     shots, pan = [], 1
     for i in range(len(cuts) - 1):
         a, b = cuts[i], cuts[i + 1]
-        n = 1 if b - a <= MAX_SHOT + 0.2 else math.ceil((b - a) / 2.4)
+        n = 1 if b - a <= MAX_SHOT + 0.2 else math.ceil((b - a) / 3.2)
         for part in range(n):
             t0, t1 = a + (b - a) * part / n, a + (b - a) * (part + 1) / n
             clip, start = lib.pick(scenes[i], t1 - t0 + 0.3, hero=(i == 0))
@@ -2020,17 +1928,15 @@ def build_plan(s, qtype, topic, voice, pics, lib, case_no):
                 if abs(t0 - dock0) > 0.25:
                     sfx.append((t0 - 0.03, "whoosh", 0.4))
 
-    fx += [{"t": reveal_t, "kind": "flash", "amp": 0.9}, {"t": reveal_t, "kind": "shake", "amp": 20},
-           {"t": reveal_t + 0.45, "kind": "shake", "amp": 9}]
-    sfx += [(0.02, "boom", 1.0), (dock0, "whoosh", 0.55), (reveal_t - 0.55, "riser", 0.75), (reveal_t, "boom", 1.05),
-            (reveal_t + 0.02, "chime", 0.6), (reveal_t + 0.45, "thud", 0.85)]
-    sfx += [(t, "tick", 0.4) for i, t in enumerate(q_t) if i > 0 and t < dock0]
-    sfx += [(reveal_t + 0.5 + 0.07 * k, "ping", 0.4, {"f": 1050 + 160 * k}) for k in range(7)]
+    fx += [{"t": reveal_t, "kind": "flash", "amp": 0.6}, {"t": reveal_t, "kind": "shake", "amp": 14}]
+    rewind = (hook["t1"] + 0.02, beats[0]["t0"] + 0.05)
+    sfx += [(0.02, "boom", 0.9), (rewind[0], "whoosh", 0.6), (rewind[0] + 0.15, "whoosh", 0.45),
+            (reveal_t - 0.75, "riser", 0.7), (reveal_t, "boom", 1.0), (reveal_t + 0.35, "thud", 0.7)]
 
     plan = {"total": total, "accent": qt["accent"], "label": qt["label"], "case_no": case_no,
-            "hook_words": qtok, "hook_t": q_t, "dock0": dock0, "dock1": dock1, "heroes": heroes, "caps": caps,
+            "dock0": dock0, "caps": caps,
             "visuals": visuals, "shots": shots, "fx": fx,
-            "reveal": {"t": reveal_t, "short": s["answer"]["short"]}, "cliff": (bounds[-2], reveal_t)}
+            "reveal": {"t": reveal_t, "short": s["answer"]["short"]}, "cliff": (bounds[-2], reveal_t), "rewind": rewind}
     return plan, [(L["t0"], L["audio"]) for L in lines], sfx
 
 
@@ -2055,7 +1961,7 @@ def make_video(s, qtype, topic, case_no):
         tag_new_clips(lib, TAG_PER_RUN)
     print("clips:", len(files), "| pictured:", sum(bool(v) for v in imgs.values()))
     plan, parts, sfx = build_plan(s, qtype, topic, voice, pics, lib, case_no)
-    print(f"timeline: {plan['total']:.1f}s | shots: {len(plan['shots'])} | unlock at {plan['reveal']['t']:.1f}s")
+    print(f"timeline: {plan['total']:.1f}s | shots: {len(plan['shots'])} | reveal at {plan['reveal']['t']:.1f}s")
     wav = mix_audio(parts, sfx, plan["total"], W / "final.wav")
     encode(plan, wav, W / "final.mp4")
     return any(imgs.values())
@@ -2076,7 +1982,8 @@ def translate(title, question, story):
     try:
         tr = gemini(
             f"Translate this Minecraft Short metadata into: {', '.join(LANGS)}. "
-            "Catchy gamer language, keep Minecraft names official, title max 80 chars, no hashtags.\n"
+            "Natural, intriguing language, keep Minecraft names official. Title max 50 chars, sentence case, "
+            "no CAPS words, no '|', no hashtags.\n"
             f"TITLE: {title}\nHOOK: {question}\nSTORY:\n{story}\n"
             'JSON: {"<code>": {"title": "...", "question": "...", "story": "..."}, ...}',
             lambda d: isinstance(d, dict) and sum(isinstance(d.get(l), dict) and bool(d[l].get("title"))
@@ -2087,8 +1994,13 @@ def translate(title, question, story):
 
 
 def video_title(s):
-    h = plain(s["hook"])
-    return (h if "minecraft" in h.lower() else f"{h} | Minecraft")[:85]
+    t = s.get("title", "")
+    if t and not title_errors(t):
+        return t
+    h = plain(s["hook"]).rstrip("!")
+    if len(h) > 45:
+        h = h[:45].rsplit(" ", 1)[0].rstrip(",.;:-")
+    return h[0].upper() + h[1:] if h else "Something is wrong with this block"
 
 
 def upload(yt, s, qtype, topic, has_images):
@@ -2096,19 +2008,19 @@ def upload(yt, s, qtype, topic, has_images):
     qt = QTYPES[qtype]
     title, q = video_title(s), plain(s["hook"])
     a = s["answer"]
-    story = f"How: {plain(a['t'])}"
-    tags = list(dict.fromkeys(["Minecraft", "Shorts", "MinecraftHack", "MinecraftSecret"] + qt["tags"] + [str(t) for t in s.get("tags", [])]))
+    story = f"The cause: {plain(a['t'])}"
+    tags = list(dict.fromkeys(["Minecraft", "Shorts", "MinecraftMystery", "MinecraftExperiment"] + qt["tags"] + [str(t) for t in s.get("tags", [])]))
     sources = "; ".join(f'"{x}"' for x in topic["articles"])
-    tail = ("\n\n#Shorts #Minecraft #MinecraftHacks " + " ".join("#" + t.replace(" ", "") for t in tags[2:7])
+    tail = ("\n\n#Shorts #Minecraft #MinecraftMystery " + " ".join("#" + t.replace(" ", "") for t in tags[2:7])
             + (f"\n\nFacts: Minecraft Wiki, {sources}." if topic.get("text") else "")
             + ("\nImages: Minecraft Wiki © Mojang." if has_images else "")
             + "\n\n" + DISCLAIMER)
-    ask = f"{s['comment_q']} Drop a 🔥 if it worked!\n\n" if s.get("comment_q") else ""
-    body = {"snippet": {"title": f"{title} #Shorts", "tags": tags[:15], "categoryId": "20",
+    ask = f"{s['comment_q']} Drop your theory below.\n\n" if s.get("comment_q") else ""
+    body = {"snippet": {"title": title, "tags": tags[:15], "categoryId": "20",
                         "description": (f"{q}\n{story}\n\n{ask}".rstrip() + tail)[:4900],
                         "defaultLanguage": "en", "defaultAudioLanguage": "en"},
             "status": {"privacyStatus": env("PRIVACY", "public"), "selfDeclaredMadeForKids": False}}
-    loc = {l: {"title": f"{plain(t['title'])[:85]} #Shorts",
+    loc = {l: {"title": re.sub(r"#\S+|\|", "", plain(t["title"])).strip()[:60],
                "description": ((t.get("question", "") + "\n" + t.get("story", "") + "\n\n").strip() + tail)[:4900]}
            for l, t in translate(title, q, story).items()}
     if loc:
@@ -2134,7 +2046,7 @@ def add_to_playlists(yt, vid, qtype):
         for name in (SERIES, QTYPES[qtype]["playlist"]):
             pl = next((i["id"] for i in items if i["snippet"]["title"] == name), None) or \
                 yt.playlists().insert(part="snippet,status", body={
-                    "snippet": {"title": name, "description": f"{name}: Minecraft hacks & secrets that actually work."},
+                    "snippet": {"title": name, "description": f"{name}: strange Minecraft mechanics, experiments and mysteries."},
                     "status": {"privacyStatus": "public"}}).execute()["id"]
             yt.playlistItems().insert(part="snippet", body={"snippet": {
                 "playlistId": pl, "resourceId": {"kind": "youtube#video", "videoId": vid}}}).execute()
@@ -2229,6 +2141,7 @@ def main():
         return
     vid = upload(yt, s, qtype, topic, has_images)
     used.append({"key": topic["key"], "arts": topic["articles"], "qtype": qtype, "q": plain(s["hook"]),
+                 "title": video_title(s),
                  "vid": vid, "ts": int(time.time())})
     save_state()
     add_to_playlists(yt, vid, qtype)
