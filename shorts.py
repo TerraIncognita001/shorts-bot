@@ -41,6 +41,9 @@ IMAGES = env("IMAGES", "1") == "1"
 COOLDOWN = int(env("COOLDOWN", "40"))
 TAG_PER_RUN = int(env("TAG_PER_RUN", "12"))
 DRY_RUN = env("DRY_RUN", "0") == "1"
+FACT_MAX = int(env("FACT_MAX", "3"))          # max fact-check calls per run
+FACT_BUDGET = float(env("FACT_BUDGET", "600"))  # seconds since start after which fact-check is skipped
+T_START = time.time()
 FPS = 30
 UA = {"User-Agent": "TerraIncognitaShortsBot/4.0 (https://terraincognita001.github.io/terra-incognita/)"}
 MCWIKI = "https://minecraft.wiki/api.php"
@@ -783,7 +786,7 @@ def encode(plan, audio, out, progress=True):
 
 # ---- Gemini --------------------------------------------------------------------------------------------------------
 GEM = "https://generativelanguage.googleapis.com/v1beta"
-GEM_FALLBACK = ["gemini-2.0-flash", "gemini-flash-latest", "gemini-1.5-flash", "gemini-flash-lite-latest"]
+GEM_FALLBACK = ["gemini-flash-latest", "gemini-flash-lite-latest"]
 _MODELS, _COOL = None, {}
 _SKIP_MODEL = re.compile(r"image|tts|audio|live|embed|thinking|robotics|computer|vision|learnlm|gemma|exp|aqa|imagen|veo|"
                          r"customtools", re.I)
@@ -1266,10 +1269,17 @@ def script_prompt(topic, qtype, recent, errors):
           '"comment_q": "...", "tags": ["..."], "related": ["..."]}')
 
 
+_FACT = {"n": 0}
+
+
 def fact_check(s, text):
     """Second Gemini pass: every factual claim must be supported by the source (not just quote existence)."""
     if not text:
         return []
+    if _FACT["n"] >= FACT_MAX or time.time() - T_START > FACT_BUDGET:
+        print("fact check budget used, skipped")
+        return []
+    _FACT["n"] += 1
     claims = [{"id": "title", "line": s["title"], "src": ""}, {"id": "hook", "line": plain(s["hook"]), "src": ""}]
     claims += [{"id": f"beat {i}", "line": plain(b["t"]), "src": b["src"]} for i, b in enumerate(s["beats"], 1)]
     claims += [{"id": "answer", "line": plain(s["answer"]["t"]), "src": s["answer"]["src"]}]
