@@ -1159,7 +1159,7 @@ def normalize_script(d):
               "scene": scene if scene in SCENES else "any", "show": str(a.get("show") or "").strip(),
               "src": str(a.get("src") or "").strip()}
     hook = str(d.get("hook", "")).strip()
-    if hook and not plain(hook).endswith(("!", "?")):
+    if hook and not plain(hook).endswith(("!", "?", ".", "...")):
         hook = hook + "!"
     tags = [re.sub(r"[#\s]+", " ", str(t)).strip() for t in d.get("tags", []) if str(t).strip()][:10]
     title = re.sub(r"\s+", " ", re.sub(r"#\S+|\|", " ", plain(d.get("title", "")))).strip(" .-")
@@ -2048,9 +2048,17 @@ def add_to_playlists(yt, vid, qtype):
                 yt.playlists().insert(part="snippet,status", body={
                     "snippet": {"title": name, "description": f"{name}: strange Minecraft mechanics, experiments and mysteries."},
                     "status": {"privacyStatus": "public"}}).execute()["id"]
-            yt.playlistItems().insert(part="snippet", body={"snippet": {
-                "playlistId": pl, "resourceId": {"kind": "youtube#video", "videoId": vid}}}).execute()
-            print("playlist:", name)
+            item = {"snippet": {"playlistId": pl, "resourceId": {"kind": "youtube#video", "videoId": vid}}}
+            for k in range(3):
+                try:
+                    yt.playlistItems().insert(part="snippet", body=item).execute()
+                    print("playlist:", name)
+                    break
+                except Exception as e:
+                    if k == 2 or "409" not in str(e):
+                        print("playlist skipped:", name, str(e)[:140])
+                        break
+                    time.sleep(5 * (k + 1))
     except Exception as e:
         print("playlist skipped:", str(e)[:180])
 
